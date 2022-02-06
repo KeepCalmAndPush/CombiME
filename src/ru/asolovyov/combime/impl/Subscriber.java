@@ -14,13 +14,13 @@ import ru.asolovyov.combime.api.ISubscription;
  * @author Администратор
  */
 public abstract class Subscriber implements ISubscriber {
-    protected abstract Demand processInput(Object input);
-    protected abstract void processCompletion(Completion completion);
+    protected abstract void onNext(Object input);
+    protected abstract void onCompletion(Completion completion);
 
     private Class inputType;
     private Class failureType;
 
-    Subscriber(Class inputType, Class failureType) {
+    public Subscriber(Class inputType, Class failureType) {
         super();
         this.inputType = inputType;
         this.failureType = failureType;
@@ -39,22 +39,23 @@ public abstract class Subscriber implements ISubscriber {
     }
 
     public Demand receiveInput(Object input) {
-        Utils.assertIsA(
-                "Subscriber's input",
-                getInputType(),
-                " received input",
-                input.getClass()
-                );
-        return processInput(input);
+//        Utils.assertIsA(
+//                "Subscriber's input",
+//                getInputType(),
+//                " received input",
+//                input.getClass()
+//                );
+        onNext(input);
+        return Demand.UNLIMITED;
     }
 
     public void receiveCompletion(Completion completion) {
-        Utils.assertIsA(
-                "Subscriber's failure",
-                getFailureType(),
-                "completion's failure",
-                completion.getFailure().getClass()
-                );
-        processCompletion(completion);
+//        Utils.assertIsA(
+//                "Subscriber's failure",
+//                getFailureType(),
+//                "completion's failure",
+//                completion.getFailure().getClass()
+//                );
+        onCompletion(completion);
     }
 }

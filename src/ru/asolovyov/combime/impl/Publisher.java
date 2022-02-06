@@ -19,7 +19,7 @@ public abstract class Publisher implements IPublisher {
     private Class outputType;
     private Class failureType;
 
-    Publisher(Class outputType, Class failureType) {
+    public Publisher(Class outputType, Class failureType) {
         super();
         this.outputType = outputType;
         this.failureType = failureType;

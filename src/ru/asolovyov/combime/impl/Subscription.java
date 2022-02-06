@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package ru.asolovyov.combime.impl;
 
 import ru.asolovyov.combime.api.ISubscriber;
@@ -13,22 +12,24 @@ import ru.asolovyov.combime.api.ISubscription;
  * @author Администратор
  */
 public abstract class Subscription implements ISubscription {
+
     private long id;
     private static long ID_COUNTER = 0;
     private ISubscriber subscriber;
     private Demand demand;
-
     private Class inputType;
     private Class failureType;
 
-    Subscription(Class inputType, Class failureType, ISubscriber subscriber) {
+    public Subscription(Class inputType, Class failureType, ISubscriber subscriber) {
         this.inputType = inputType;
         this.failureType = failureType;
         this.subscriber = subscriber;
     }
 
-    { generateId(); }
-    
+    {
+        generateId();
+    }
+
     private synchronized void generateId() {
         id = Subscription.ID_COUNTER++;
     }
@@ -42,6 +43,7 @@ public abstract class Subscription implements ISubscription {
     }
 
     protected abstract Object emitValue();
+
     protected abstract Completion emitCompletion();
 
     public void requestValues(Demand demand) {
@@ -53,8 +55,10 @@ public abstract class Subscription implements ISubscription {
             getDemand().add(next);
         }
 
-        Completion completion = emitCompletion();
-        getSubscriber().receiveCompletion(completion);
+        if (mayComplete()) {
+            Completion completion = emitCompletion();
+            getSubscriber().receiveCompletion(completion);
+        }
     }
 
     protected ISubscriber getSubscriber() {
@@ -66,8 +70,23 @@ public abstract class Subscription implements ISubscription {
     }
 
     protected boolean mayEmitValue() {
+        if (subscriber == null) {
+            return false;
+        }
         boolean mayEmitValue = demand == Demand.UNLIMITED;
         mayEmitValue |= getDemand().getValue() > 0;
         return mayEmitValue;
+    }
+
+    protected boolean mayComplete() {
+        return subscriber != null;
+    }
+
+    public Class getInputType() {
+        return inputType;
+    }
+
+    public Class getFailureType() {
+        return failureType;
     }
 }

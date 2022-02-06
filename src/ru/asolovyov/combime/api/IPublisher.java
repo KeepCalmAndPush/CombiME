@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime;
+package ru.asolovyov.combime.api;
 
 /**
  *
@@ -14,5 +14,5 @@ public interface IPublisher {
     public Class getFailureType();
 
     /** ISubscriber's InputType and FailureType MUST be equal to OutputType and FailureType */
-    public Cancellable receiveSubscriber(ISubscriber subscriber);
+    public ICancellable receiveSubscriber(ISubscriber subscriber);
 }

@@ -3,19 +3,21 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime;
+package ru.asolovyov.combime.impl;
+
+import ru.asolovyov.combime.utils.Utils;
+import ru.asolovyov.combime.api.ISubscriber;
+import ru.asolovyov.combime.api.ICancellable;
+import ru.asolovyov.combime.api.IPublisher;
+import ru.asolovyov.combime.api.ISubscription;
 
 /**
  *
  * @author Администратор
  */
 public abstract class Publisher implements IPublisher {
-    protected abstract Cancellable attachSubscriber(ISubscriber subscriber);
-
     private Class outputType;
     private Class failureType;
-    
-    private ISubscriber subscriber;
 
     Publisher(Class outputType, Class failureType) {
         super();
@@ -31,12 +33,15 @@ public abstract class Publisher implements IPublisher {
         return failureType;
     }
 
-    public Cancellable receiveSubscriber(ISubscriber subscriber) {
+    protected abstract ISubscription createSubscription(ISubscriber subscriber);
+
+    public ICancellable receiveSubscriber(ISubscriber subscriber) {
         Utils.assertIsA("Publisher's output", getOutputType(), "subscriber's input", subscriber.getInputType());
         Utils.assertIsA("Publisher's failure", getFailureType(), "subscriber's failure", subscriber.getFailureType());
 
-        this.subscriber = subscriber;
+        ISubscription subscription = createSubscription(subscriber);
+        subscriber.receiveSubscription(subscription);
 
-        return attachSubscriber(this.subscriber);
+        return subscription;
     }
 }

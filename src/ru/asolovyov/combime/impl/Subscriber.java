@@ -3,7 +3,11 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime;
+package ru.asolovyov.combime.impl;
+
+import ru.asolovyov.combime.utils.Utils;
+import ru.asolovyov.combime.api.ISubscriber;
+import ru.asolovyov.combime.api.ISubscription;
 
 /**
  *
@@ -30,8 +34,17 @@ public abstract class Subscriber implements ISubscriber {
         return failureType;
     }
 
+    public void receiveSubscription(ISubscription subscription) {
+        subscription.requestValues(Demand.UNLIMITED);
+    }
+
     public Demand receiveInput(Object input) {
-        Utils.assertIsA("Subscriber's input", getInputType(), " received input", input.getClass());
+        Utils.assertIsA(
+                "Subscriber's input",
+                getInputType(),
+                " received input",
+                input.getClass()
+                );
         return processInput(input);
     }
 

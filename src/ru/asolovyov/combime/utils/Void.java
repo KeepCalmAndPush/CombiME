@@ -3,12 +3,10 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime;
+package ru.asolovyov.combime.utils;
 
 /**
  *
  * @author Администратор
  */
-public interface Cancellable {
-    public void cancel();
-}
+public class Void {}

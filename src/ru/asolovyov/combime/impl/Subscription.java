@@ -12,24 +12,17 @@ import ru.asolovyov.combime.api.ISubscription;
  * @author Администратор
  */
 public abstract class Subscription implements ISubscription {
-
     private long id;
     private static long ID_COUNTER = 0;
     private ISubscriber subscriber;
     private Demand demand;
-    private Class inputType;
-    private Class failureType;
 
-    public Subscription(Class inputType, Class failureType, ISubscriber subscriber) {
-        this.inputType = inputType;
-        this.failureType = failureType;
+    { generateId(); }
+
+    public Subscription(ISubscriber subscriber) {
         this.subscriber = subscriber;
     }
-
-    {
-        generateId();
-    }
-
+    
     private synchronized void generateId() {
         id = Subscription.ID_COUNTER++;
     }
@@ -42,22 +35,32 @@ public abstract class Subscription implements ISubscription {
         subscriber = null;
     }
 
-    protected abstract Object emitValue();
+    protected boolean hasNextValue = false;
+    private boolean isCompleted = false;
 
+    protected abstract Object emitValue();
     protected abstract Completion emitCompletion();
 
     public void requestValues(Demand demand) {
         this.demand = demand;
+        passInputToSubscriber();
+    }
 
-        while (mayEmitValue()) {
+    protected void passInputToSubscriber() {
+        if (mayEmitValue()) {
+            getDemand().decrement();
             Object object = emitValue();
             Demand next = getSubscriber().receiveInput(object);
             getDemand().add(next);
+            hasNextValue = false;
+        } else {
+            return;
         }
 
         if (mayComplete()) {
             Completion completion = emitCompletion();
             getSubscriber().receiveCompletion(completion);
+            isCompleted = true;
         }
     }
 
@@ -70,6 +73,9 @@ public abstract class Subscription implements ISubscription {
     }
 
     protected boolean mayEmitValue() {
+        if (!hasNextValue || isCompleted) {
+            return false;
+        }
         if (subscriber == null) {
             return false;
         }
@@ -79,14 +85,9 @@ public abstract class Subscription implements ISubscription {
     }
 
     protected boolean mayComplete() {
-        return subscriber != null;
-    }
-
-    public Class getInputType() {
-        return inputType;
-    }
-
-    public Class getFailureType() {
-        return failureType;
+        if (subscriber == null || isCompleted) {
+            return false;
+        }
+        return demand.getValue() == 0;
     }
 }

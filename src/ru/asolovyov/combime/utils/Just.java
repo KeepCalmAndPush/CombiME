@@ -19,12 +19,11 @@ public class Just extends Publisher {
     private Object value;
 
     public Just(Object value) {
-        super(value.getClass(), (new Exception()).getClass());
         this.value = value;
     }
 
     protected ISubscription createSubscription(ISubscriber subscriber) {
-        return new Subscription(value.getClass(), (new Void()).getClass(), subscriber) {
+        return new Subscription(subscriber) {
 
             private boolean isEmitted = false;
 

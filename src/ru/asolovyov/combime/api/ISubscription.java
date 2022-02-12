@@ -14,7 +14,5 @@ import ru.asolovyov.combime.impl.Demand;
  * @author Администратор
  */
 public interface ISubscription extends ICancellable, Identifiable {
-    public Class getInputType();
-    public Class getFailureType();
     public void requestValues(Demand demand);
 }

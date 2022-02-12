@@ -13,7 +13,7 @@ package ru.asolovyov.combime.impl;
  */
 public final class Demand {
     public static final Demand NONE = new Demand(0);
-    public static final Demand UNLIMITED = new Demand(-1, true);
+    public static final Demand UNLIMITED = new Demand(Long.MAX_VALUE, true);
 
     private long value = 0;
 
@@ -43,7 +43,10 @@ public final class Demand {
         value += demand.getValue();
     }
     
-    public long decrement() {
-        return --value;
+    public void decrement() {
+        if (this == UNLIMITED || this == NONE) {
+            return;
+        }
+        --value;
     }
 }

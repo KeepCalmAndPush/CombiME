@@ -10,6 +10,5 @@ package ru.asolovyov.combime.api;
  * @author Администратор
  */
 public interface ISubject extends IPublisher {
-    /** Object object MUST be of OutputType */
-    public void send(Object object);
+    public void sendValue(Object value);
 }

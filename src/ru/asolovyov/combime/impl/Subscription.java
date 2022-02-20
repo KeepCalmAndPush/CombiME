@@ -35,7 +35,11 @@ public abstract class Subscription implements ISubscription {
         subscriber = null;
     }
 
-    protected boolean hasNextValue = false;
+    public void notifyNextValueAvailable() {
+        hasNextValue = true;
+    }
+
+    private boolean hasNextValue = false;
     private boolean isCompleted = false;
 
     protected abstract Object emitValue();

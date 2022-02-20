@@ -7,8 +7,8 @@ package ru.asolovyov.combime.tests;
 
 import ru.asolovyov.combime.impl.Completion;
 import ru.asolovyov.combime.impl.Subscriber;
-import ru.asolovyov.combime.utils.Just;
-import ru.asolovyov.combime.utils.Void;
+import ru.asolovyov.combime.impl.publisher.Just;
+import ru.asolovyov.combime.misc.Void;
 
 /**
  *

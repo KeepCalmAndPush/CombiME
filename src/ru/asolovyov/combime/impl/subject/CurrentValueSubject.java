@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.impl.subject;
 
 import java.util.Enumeration;
 import java.util.Vector;
@@ -11,6 +11,7 @@ import ru.asolovyov.combime.api.ICancellable;
 import ru.asolovyov.combime.api.ISubject;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
+import ru.asolovyov.combime.impl.publisher.Publisher;
 
 /**
  *

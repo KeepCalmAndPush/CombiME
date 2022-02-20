@@ -3,9 +3,11 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.impl.subject;
 
 import ru.asolovyov.combime.api.ISubscriber;
+import ru.asolovyov.combime.impl.Completion;
+import ru.asolovyov.combime.impl.Subscription;
 
 /**
  *
@@ -20,7 +22,7 @@ class SubjectSubscription extends Subscription {
     
     public void sendValue(Object value) {
         this.value = value;
-        hasNextValue = true;
+        notifyNextValueAvailable();
         passInputToSubscriber();
     }
 

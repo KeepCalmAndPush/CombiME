@@ -3,12 +3,12 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.utils;
+package ru.asolovyov.combime.impl.publisher;
 
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.impl.Completion;
-import ru.asolovyov.combime.impl.Publisher;
+import ru.asolovyov.combime.impl.publisher.Publisher;
 import ru.asolovyov.combime.impl.Subscription;
 
 /**

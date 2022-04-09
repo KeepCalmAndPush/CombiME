@@ -11,7 +11,7 @@ import ru.asolovyov.combime.api.ISubscription;
  *
  * @author Администратор
  */
-public abstract class Subscription implements ISubscription {
+public class Subscription implements ISubscription {
     private long id;
     private static long ID_COUNTER = 0;
     private ISubscriber subscriber;
@@ -38,30 +38,32 @@ public abstract class Subscription implements ISubscription {
     protected boolean hasNextValue = false;
     private boolean isCompleted = false;
 
-    protected abstract Object emitValue();
-    protected abstract Completion emitCompletion();
-
     public void requestValues(Demand demand) {
         this.demand = demand;
-        passInputToSubscriber();
     }
 
-    protected void passInputToSubscriber() {
-        if (mayEmitValue()) {
-            getDemand().decrement();
-            Object object = emitValue();
-            Demand next = getSubscriber().receiveInput(object);
-            getDemand().add(next);
-            hasNextValue = false;
-        } else {
+    public void sendValue(Object value) {
+        hasNextValue = true;
+
+        if (!mayEmitValue()) {
             return;
         }
+
+        getDemand().decrement();
+        Demand next = getSubscriber().receiveInput(value);
+        getDemand().add(next);
+
+        hasNextValue = false;
 
         if (mayComplete()) {
             Completion completion = emitCompletion();
             getSubscriber().receiveCompletion(completion);
             isCompleted = true;
         }
+    }
+
+    public void sendCompletion(Completion completion) {
+        getSubscriber().receiveCompletion(completion);
     }
 
     protected ISubscriber getSubscriber() {
@@ -89,5 +91,9 @@ public abstract class Subscription implements ISubscription {
             return false;
         }
         return demand.getValue() == 0;
+    }
+
+    protected Completion emitCompletion() {
+        return new Completion(true, null);
     }
 }

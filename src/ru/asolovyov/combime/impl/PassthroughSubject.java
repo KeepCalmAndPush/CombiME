@@ -16,19 +16,25 @@ import ru.asolovyov.combime.api.ISubscription;
  * @author Администратор
  */
 public class PassthroughSubject extends Publisher implements ISubject {
-    private Vector subscriptions = new Vector();
-
     public void sendValue(Object value) {
         Enumeration elements = subscriptions.elements();
         while (elements.hasMoreElements()) {
-            SubjectSubscription element = (SubjectSubscription)elements.nextElement();
+            Subscription element = (Subscription)elements.nextElement();
             element.sendValue(value);
         }
     }
 
+    public void sendCompletion(Completion completion) {
+        Enumeration elements = subscriptions.elements();
+        while (elements.hasMoreElements()) {
+            Subscription element = (Subscription)elements.nextElement();
+            element.sendCompletion(completion);
+        }
+        subscriptions.removeAllElements();
+    }
+
     protected ISubscription createSubscription(ISubscriber subscriber) {
-        SubjectSubscription subscription = new SubjectSubscription(subscriber);
-        subscriptions.addElement(subscription);
+        Subscription subscription = new Subscription(subscriber);
         return subscription;
     }
 }

@@ -5,10 +5,13 @@
 
 package ru.asolovyov.combime.api;
 
+import ru.asolovyov.combime.impl.Completion;
+
 /**
  *
  * @author Администратор
  */
 public interface ISubject extends IPublisher {
     public void sendValue(Object value);
+    public void sendCompletion(Completion completion);
 }

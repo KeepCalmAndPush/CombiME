@@ -20,7 +20,7 @@ public abstract class Publisher implements IPublisher {
 
     protected abstract ISubscription createSubscription(ISubscriber subscriber);
 
-    public ICancellable receiveSubscriber(ISubscriber subscriber) {
+    public ICancellable subscribe(ISubscriber subscriber) {
         ISubscription subscription = createSubscription(subscriber);
         subscriber.receiveSubscription(subscription);
         subscriptions.addElement(subscription);

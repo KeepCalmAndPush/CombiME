@@ -18,7 +18,7 @@ public class TestJust {
 
     public void testJust() {
         Just j = new Just("Hello");
-        j.receiveSubscriber(new Subscriber() {
+        j.subscribe(new Subscriber() {
 
             protected void onCompletion(Completion completion) {
                 System.out.println("DONE!");

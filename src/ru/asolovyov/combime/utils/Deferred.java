@@ -20,33 +20,33 @@ import ru.asolovyov.combime.impl.Subscription;
  *
  * @author Администратор
  */
-public class Future extends Publisher {
+public class Deferred extends Publisher {
     private Task task;
     private Object value;
     private Exception failure;
+    private ISubject completion;
+    private boolean wasTaskStarted = false;
 
-    public Future(Task task) {
+    public Deferred(Task task) {
         this.task = task;
 
-        ISubject completion = new PassthroughSubject();
+        completion = new PassthroughSubject();
         completion.subscribe(new Subscriber() {
             protected void onValue(Object value) {
-                Future.this.value = value;
-                Future.this.task = null;
-                Future.this.sendValue(value);
-                Future.this.sendCompletion(new Completion(true, null));
-                Future.this.subscriptions.removeAllElements();
+                Deferred.this.value = value;
+                Deferred.this.task = null;
+                Deferred.this.sendValue(value);
+                Deferred.this.sendCompletion(new Completion(true, null));
+                Deferred.this.subscriptions.removeAllElements();
             }
 
             protected void onCompletion(Completion completion) {
-                Future.this.failure = completion.getFailure();
-                Future.this.task = null;
-                Future.this.sendCompletion(completion);
-                Future.this.subscriptions.removeAllElements();
+                Deferred.this.failure = completion.getFailure();
+                Deferred.this.task = null;
+                Deferred.this.sendCompletion(completion);
+                Deferred.this.subscriptions.removeAllElements();
             }
         });
-
-        task.peformWithCompletion(completion);
     }
 
     protected ISubscription createSubscription(ISubscriber subscriber) {
@@ -55,6 +55,11 @@ public class Future extends Publisher {
     }
 
     public ICancellable subscribe(ISubscriber subscriber) {
+        if (!wasTaskStarted) {
+            this.task.peformWithCompletion(completion);
+            wasTaskStarted = true;
+        }
+        
         Subscription subscription = (Subscription) super.subscribe(subscriber);
         if (value != null) {
             subscription.sendValue(value);
@@ -84,5 +89,3 @@ public class Future extends Publisher {
         subscriptions.removeAllElements();
     }
 }
-
-

@@ -25,8 +25,8 @@ public class CurrentValueSubject extends PassthroughSubject implements ISubject 
         super.sendValue(currentValue);
     }
 
-    public ICancellable receiveSubscriber(ISubscriber subscriber) {
-        ICancellable subscription = super.receiveSubscriber(subscriber);
+    public ICancellable subscribe(ISubscriber subscriber) {
+        ICancellable subscription = super.subscribe(subscriber);
         if (currentValue != null) {
             ((Subscription)subscription).sendValue(currentValue);
         }

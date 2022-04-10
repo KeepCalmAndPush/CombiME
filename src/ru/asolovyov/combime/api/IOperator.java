@@ -9,6 +9,4 @@ package ru.asolovyov.combime.api;
  *
  * @author Администратор
  */
-public interface IPublisher {
-    public ICancellable subscribe(ISubscriber subscriber);
-}
+public interface IOperator extends ISubscriber, IPublisher { }

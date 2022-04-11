@@ -8,6 +8,7 @@ package ru.asolovyov.combime.impl;
 import java.util.Vector;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ICancellable;
+import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscription;
 
@@ -25,5 +26,10 @@ public abstract class Publisher implements IPublisher {
         subscriber.receiveSubscription(subscription);
         subscriptions.addElement(subscription);
         return subscription;
+    }
+
+    public IPublisher to(IOperator operator) {
+        subscribe(operator);
+        return operator;
     }
 }

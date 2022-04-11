@@ -11,4 +11,5 @@ package ru.asolovyov.combime.api;
  */
 public interface IPublisher {
     public ICancellable subscribe(ISubscriber subscriber);
+    public IPublisher to(IOperator operator);
 }

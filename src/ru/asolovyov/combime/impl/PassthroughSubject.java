@@ -6,7 +6,6 @@
 package ru.asolovyov.combime.impl;
 
 import java.util.Enumeration;
-import java.util.Vector;
 import ru.asolovyov.combime.api.ISubject;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;

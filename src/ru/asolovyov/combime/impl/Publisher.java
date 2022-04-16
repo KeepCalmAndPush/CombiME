@@ -11,12 +11,13 @@ import ru.asolovyov.combime.api.ICancellable;
 import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscription;
+import ru.asolovyov.combime.api.ISubscriptionDelegate;
 
 /**
  *
  * @author Администратор
  */
-public abstract class Publisher implements IPublisher {
+public abstract class Publisher implements IPublisher, ISubscriptionDelegate {
     protected Vector subscriptions = new Vector();
 
     protected ISubscription createSubscription(ISubscriber subscriber) {
@@ -33,7 +34,7 @@ public abstract class Publisher implements IPublisher {
     }
 
     public IPublisher to(IOperator operator) {
-        System.out.println("PUB TO " + operator);
+        System.out.println(this.getClass().getName() + " PUB TO " + operator);
         subscribe(operator);
         return operator;
     }
@@ -41,8 +42,6 @@ public abstract class Publisher implements IPublisher {
     public String toString() {
         return super.toString() + " count " + subscriptions.size();
     }
-
-    public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) { }
 
     public void subscriptionDidCancel(ISubscription subscription) {
         subscriptions.removeElement(subscription);

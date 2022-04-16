@@ -10,31 +10,29 @@ import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubject;
 import ru.asolovyov.combime.api.ISubscriber;
-import ru.asolovyov.combime.api.ISubscription;
 
 /**
  *
  * @author Администратор
  */
 public abstract class Operator extends Subscriber implements IOperator {
-    protected ISubject publisher = new PassthroughSubject();
+    protected ISubject publisher = new CurrentValueSubject(null);
     
     public IPublisher to(IOperator operator) {
-        System.out.println("OP TO " + operator);
+        System.out.println(this.getClass().getName() + " OP TO " + operator);
         publisher.subscribe(operator);
         return operator;
     }
 
     public ICancellable subscribe(ISubscriber subscriber) {
-        ISubscription cancellable = (ISubscription)publisher.subscribe(subscriber);
-        publisher.subscriptionDidRequestValues(cancellable, Demand.UNLIMITED);
-        return cancellable;
+        System.out.println(this.getClass().getName() + " OP SUBSCRIBE " + subscriber);
+        return publisher.subscribe(subscriber);
     }
 
     //subscriber
     protected void onValue(Object value) {
         Object newValue = mapValue(value);
-        System.out.println("OP ON_VALUE: " + publisher);
+        System.out.println(this.getClass().getName() + " OP ON_VALUE: " + publisher);
         publisher.sendValue(newValue);
     }
 
@@ -44,18 +42,11 @@ public abstract class Operator extends Subscriber implements IOperator {
     }
 
     protected Object mapValue(Object value) {
+        System.out.println("OP MAP VALUE " + value);
         return value;
     }
 
     protected Completion mapCompletion(Completion completion) {
         return completion;
-    }
-
-    public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
-        publisher.subscriptionDidRequestValues(subscription, demand);
-    }
-
-    public void subscriptionDidCancel(ISubscription subscription) {
-        publisher.subscriptionDidCancel(subscription);
     }
 }

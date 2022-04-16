@@ -17,7 +17,7 @@ public abstract class Sink extends Subscriber {
 
     public void receiveSubscription(ISubscription subscription) {
         super.receiveSubscription(subscription);
-        this.subscription.requestValues(Demand.UNLIMITED);
+        subscription.requestValues(Demand.UNLIMITED);
     }
 
     public Demand receiveInput(Object input) {

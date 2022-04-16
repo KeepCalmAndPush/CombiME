@@ -9,7 +9,7 @@ package ru.asolovyov.combime.api;
  *
  * @author Администратор
  */
-public interface IPublisher extends ISubscriptionDelegate {
+public interface IPublisher {
     public ICancellable subscribe(ISubscriber subscriber);
     public IPublisher to(IOperator operator);
 }

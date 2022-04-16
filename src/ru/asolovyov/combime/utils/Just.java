@@ -8,6 +8,7 @@ package ru.asolovyov.combime.utils;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.impl.Completion;
+import ru.asolovyov.combime.impl.Demand;
 import ru.asolovyov.combime.impl.Publisher;
 import ru.asolovyov.combime.impl.Subscription;
 
@@ -40,5 +41,9 @@ public class Just extends Publisher {
                 return new Completion(true, null);
             }
         };
+    }
+
+    public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
+        subscription.getSubscriber().receiveInput(value);
     }
 }

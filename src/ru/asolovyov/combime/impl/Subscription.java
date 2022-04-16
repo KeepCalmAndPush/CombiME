@@ -46,7 +46,7 @@ public class Subscription implements ISubscription {
     }
 
     public void sendValue(Object value) {
-        hasNextValue = true;
+//        hasNextValue = true;
 
         if (!mayEmitValue()) {
             return;
@@ -56,7 +56,7 @@ public class Subscription implements ISubscription {
         Demand next = getSubscriber().receiveInput(value);
         getDemand().add(next);
 
-        hasNextValue = false;
+//        hasNextValue = false;
 
 //        if (mayComplete()) {
 //            Completion completion = emitCompletion();
@@ -78,9 +78,9 @@ public class Subscription implements ISubscription {
     }
 
     protected boolean mayEmitValue() {
-        if (!hasNextValue || isCompleted) {
-            return false;
-        }
+//        if (!hasNextValue || isCompleted) {
+//            return false;
+//        }
         if (subscriber == null) {
             return false;
         }

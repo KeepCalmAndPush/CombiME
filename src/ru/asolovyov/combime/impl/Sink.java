@@ -5,20 +5,19 @@
 
 package ru.asolovyov.combime.impl;
 
-import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 
 /**
  *
  * @author Администратор
  */
-public class Subscriber implements ISubscriber {
-    protected ISubscription subscription;
+public abstract class Sink extends Subscriber {
     protected void onValue(Object value) { };
     protected void onCompletion(Completion completion) {};
 
     public void receiveSubscription(ISubscription subscription) {
-        this.subscription = subscription;
+        super.receiveSubscription(subscription);
+        this.subscription.requestValues(Demand.UNLIMITED);
     }
 
     public Demand receiveInput(Object input) {

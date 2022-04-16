@@ -7,7 +7,6 @@ package ru.asolovyov.combime.impl;
 
 import java.util.Enumeration;
 import ru.asolovyov.combime.api.ISubject;
-import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 
 /**
@@ -17,8 +16,10 @@ import ru.asolovyov.combime.api.ISubscription;
 public class PassthroughSubject extends Publisher implements ISubject {
     public void sendValue(Object value) {
         Enumeration elements = subscriptions.elements();
+        System.out.println("Sending value " + value);
         while (elements.hasMoreElements()) {
             Subscription element = (Subscription)elements.nextElement();
+            System.out.println("Sending value " + value + " to " + element);
             element.sendValue(value);
         }
     }
@@ -30,10 +31,5 @@ public class PassthroughSubject extends Publisher implements ISubject {
             element.sendCompletion(completion);
         }
         subscriptions.removeAllElements();
-    }
-
-    protected ISubscription createSubscription(ISubscriber subscriber) {
-        Subscription subscription = new Subscription(subscriber);
-        return subscription;
     }
 }

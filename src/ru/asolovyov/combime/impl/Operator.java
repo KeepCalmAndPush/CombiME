@@ -8,51 +8,54 @@ package ru.asolovyov.combime.impl;
 import ru.asolovyov.combime.api.ICancellable;
 import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
-import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubject;
+import ru.asolovyov.combime.api.ISubscriber;
+import ru.asolovyov.combime.api.ISubscription;
 
 /**
  *
  * @author Администратор
  */
 public abstract class Operator extends Subscriber implements IOperator {
-    private ISubject publisher = new PassthroughSubject();
-
-    //publisher
-    public ICancellable subscribe(ISubscriber subscriber) {
-        return getPublisher().subscribe(subscriber);
+    protected ISubject publisher = new PassthroughSubject();
+    
+    public IPublisher to(IOperator operator) {
+        System.out.println("OP TO " + operator);
+        publisher.subscribe(operator);
+        return operator;
     }
 
-    public IPublisher to(IOperator operator) {
-        subscribe(operator);
-        return operator;
+    public ICancellable subscribe(ISubscriber subscriber) {
+        ISubscription cancellable = (ISubscription)publisher.subscribe(subscriber);
+        publisher.subscriptionDidRequestValues(cancellable, Demand.UNLIMITED);
+        return cancellable;
     }
 
     //subscriber
     protected void onValue(Object value) {
         Object newValue = mapValue(value);
-        System.out.println("VALUE " + value + " MAPPED TO " + newValue);
-        getPublisher().sendValue(newValue);
+        System.out.println("OP ON_VALUE: " + publisher);
+        publisher.sendValue(newValue);
     }
 
     protected void onCompletion(Completion completion) {
         Completion newCompletion = mapCompletion(completion);
-        getPublisher().sendCompletion(newCompletion);
+        publisher.sendCompletion(newCompletion);
     }
 
-    public Object mapValue(Object value) {
+    protected Object mapValue(Object value) {
         return value;
     }
 
-    public Completion mapCompletion(Completion completion) {
+    protected Completion mapCompletion(Completion completion) {
         return completion;
     }
 
-    protected ISubject getPublisher() {
-        return publisher;
+    public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
+        publisher.subscriptionDidRequestValues(subscription, demand);
     }
 
-    protected void setPublisher(ISubject publisher) {
-        this.publisher = publisher;
+    public void subscriptionDidCancel(ISubscription subscription) {
+        publisher.subscriptionDidCancel(subscription);
     }
 }

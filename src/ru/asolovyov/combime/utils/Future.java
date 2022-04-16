@@ -13,7 +13,7 @@ import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.impl.Completion;
 import ru.asolovyov.combime.impl.PassthroughSubject;
 import ru.asolovyov.combime.impl.Publisher;
-import ru.asolovyov.combime.impl.Subscriber;
+import ru.asolovyov.combime.impl.Sink;
 import ru.asolovyov.combime.impl.Subscription;
 
 /**
@@ -28,25 +28,21 @@ public class Future extends Publisher {
     public Future(Task task) {
         this.task = task;
 
-        ISubject completion = new PassthroughSubject();
-        completion.subscribe(new Subscriber() {
+        task.subscribe(new Sink() {
             protected void onValue(Object value) {
                 Future.this.value = value;
                 Future.this.task = null;
                 Future.this.sendValue(value);
-                Future.this.sendCompletion(new Completion(true, null));
-                Future.this.subscriptions.removeAllElements();
             }
 
             protected void onCompletion(Completion completion) {
                 Future.this.failure = completion.getFailure();
                 Future.this.task = null;
                 Future.this.sendCompletion(completion);
-                Future.this.subscriptions.removeAllElements();
             }
         });
-
-        task.peformWithCompletion(completion);
+        
+        task.run();
     }
 
     protected ISubscription createSubscription(ISubscriber subscriber) {
@@ -58,11 +54,10 @@ public class Future extends Publisher {
         Subscription subscription = (Subscription) super.subscribe(subscriber);
         if (value != null) {
             subscription.sendValue(value);
-            subscription.sendCompletion(new Completion(true, null));
-            subscriptions.removeElement(subscription);
+//            subscriptions.removeElement(subscription);
         } else if (failure != null) {
             subscription.sendCompletion(new Completion(false, failure));
-            subscriptions.removeElement(subscription);
+//            subscriptions.removeElement(subscription);
         }
         return subscription;
     }
@@ -81,7 +76,7 @@ public class Future extends Publisher {
             Subscription element = (Subscription)elements.nextElement();
             element.sendCompletion(completion);
         }
-        subscriptions.removeAllElements();
+//        subscriptions.removeAllElements();
     }
 }
 

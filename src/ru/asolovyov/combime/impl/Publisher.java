@@ -19,7 +19,11 @@ import ru.asolovyov.combime.api.ISubscription;
 public abstract class Publisher implements IPublisher {
     protected Vector subscriptions = new Vector();
 
-    protected abstract ISubscription createSubscription(ISubscriber subscriber);
+    protected ISubscription createSubscription(ISubscriber subscriber) {
+        Subscription subscription = new Subscription(subscriber);
+        subscription.setDelegate(this);
+        return subscription;
+    }
 
     public ICancellable subscribe(ISubscriber subscriber) {
         ISubscription subscription = createSubscription(subscriber);
@@ -29,7 +33,18 @@ public abstract class Publisher implements IPublisher {
     }
 
     public IPublisher to(IOperator operator) {
+        System.out.println("PUB TO " + operator);
         subscribe(operator);
         return operator;
+    }
+
+    public String toString() {
+        return super.toString() + " count " + subscriptions.size();
+    }
+
+    public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) { }
+
+    public void subscriptionDidCancel(ISubscription subscription) {
+        subscriptions.removeElement(subscription);
     }
 }

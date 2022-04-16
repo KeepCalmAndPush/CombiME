@@ -4,12 +4,11 @@
  */
 package ru.asolovyov.combime.utils;
 
-import ru.asolovyov.combime.api.ISubject;
+import ru.asolovyov.combime.impl.PassthroughSubject;
 
 /**
  *
  * @author Администратор
  */
-public interface Task {
-    public void peformWithCompletion(ISubject completion);
+public abstract class Task extends PassthroughSubject implements Runnable {
 }

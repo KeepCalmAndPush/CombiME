@@ -6,6 +6,7 @@ package ru.asolovyov.combime.impl;
 
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
+import ru.asolovyov.combime.api.ISubscriptionDelegate;
 
 /**
  *
@@ -16,6 +17,7 @@ public class Subscription implements ISubscription {
     private static long ID_COUNTER = 0;
     private ISubscriber subscriber;
     private Demand demand;
+    private ISubscriptionDelegate delegate;
 
     { generateId(); }
 
@@ -40,6 +42,7 @@ public class Subscription implements ISubscription {
 
     public void requestValues(Demand demand) {
         this.demand = demand;
+        this.delegate.subscriptionDidRequestValues(this, demand);
     }
 
     public void sendValue(Object value) {
@@ -55,18 +58,18 @@ public class Subscription implements ISubscription {
 
         hasNextValue = false;
 
-        if (mayComplete()) {
-            Completion completion = emitCompletion();
-            getSubscriber().receiveCompletion(completion);
-            isCompleted = true;
-        }
+//        if (mayComplete()) {
+//            Completion completion = emitCompletion();
+//            getSubscriber().receiveCompletion(completion);
+//            isCompleted = true;
+//        }
     }
 
     public void sendCompletion(Completion completion) {
         getSubscriber().receiveCompletion(completion);
     }
 
-    protected ISubscriber getSubscriber() {
+    public ISubscriber getSubscriber() {
         return subscriber;
     }
 
@@ -81,19 +84,31 @@ public class Subscription implements ISubscription {
         if (subscriber == null) {
             return false;
         }
+        if (getDemand() == null) {
+            return false;
+        }
+
         boolean mayEmitValue = demand == Demand.UNLIMITED;
         mayEmitValue |= getDemand().getValue() > 0;
         return mayEmitValue;
     }
-
-    protected boolean mayComplete() {
-        if (subscriber == null || isCompleted) {
-            return false;
-        }
-        return demand.getValue() == 0;
+    
+    public ISubscriptionDelegate getDelegate() {
+        return delegate;
     }
 
-    protected Completion emitCompletion() {
-        return new Completion(true, null);
+    public void setDelegate(ISubscriptionDelegate delegate) {
+        this.delegate = delegate;
     }
+
+//    protected boolean mayComplete() {
+//        if (subscriber == null || isCompleted) {
+//            return false;
+//        }
+//        return demand.getValue() == 0;
+//    }
+//
+//    protected Completion emitCompletion() {
+//        return new Completion(true, null);
+//    }
 }

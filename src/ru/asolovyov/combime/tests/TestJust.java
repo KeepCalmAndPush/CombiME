@@ -6,7 +6,7 @@
 package ru.asolovyov.combime.tests;
 
 import ru.asolovyov.combime.impl.Completion;
-import ru.asolovyov.combime.impl.Subscriber;
+import ru.asolovyov.combime.impl.Sink;
 import ru.asolovyov.combime.utils.Just;
 import ru.asolovyov.combime.utils.Void;
 
@@ -18,7 +18,7 @@ public class TestJust {
 
     public void testJust() {
         Just j = new Just("Hello");
-        j.subscribe(new Subscriber() {
+        j.subscribe(new Sink() {
 
             protected void onCompletion(Completion completion) {
                 System.out.println("DONE!");

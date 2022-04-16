@@ -13,7 +13,7 @@ import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.impl.Completion;
 import ru.asolovyov.combime.impl.PassthroughSubject;
 import ru.asolovyov.combime.impl.Publisher;
-import ru.asolovyov.combime.impl.Subscriber;
+import ru.asolovyov.combime.impl.Sink;
 import ru.asolovyov.combime.impl.Subscription;
 
 /**
@@ -24,14 +24,12 @@ public class Deferred extends Publisher {
     private Task task;
     private Object value;
     private Exception failure;
-    private ISubject completion;
     private boolean wasTaskStarted = false;
 
     public Deferred(Task task) {
         this.task = task;
 
-        completion = new PassthroughSubject();
-        completion.subscribe(new Subscriber() {
+        task.subscribe(new Sink() {
             protected void onValue(Object value) {
                 Deferred.this.value = value;
                 Deferred.this.task = null;
@@ -56,7 +54,7 @@ public class Deferred extends Publisher {
 
     public ICancellable subscribe(ISubscriber subscriber) {
         if (!wasTaskStarted) {
-            this.task.peformWithCompletion(completion);
+            this.task.run();
             wasTaskStarted = true;
         }
         

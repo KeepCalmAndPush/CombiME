@@ -19,7 +19,7 @@ public class PassthroughSubject extends Publisher implements ISubject {
         System.out.println(this.getClass().getName() + " PTS Sending value " + value);
         while (elements.hasMoreElements()) {
             Subscription element = (Subscription)elements.nextElement();
-            System.out.println(this.getClass().getName() + " PTS Sending value " + value + " to " + element);
+            System.out.println("to " + element);
             element.sendValue(value);
         }
     }

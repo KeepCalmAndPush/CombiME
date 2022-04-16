@@ -15,10 +15,10 @@ public abstract class Sink extends Subscriber {
     protected void onValue(Object value) { };
     protected void onCompletion(Completion completion) {};
 
-    public void receiveSubscription(ISubscription subscription) {
-        super.receiveSubscription(subscription);
-        subscription.requestValues(Demand.UNLIMITED);
-    }
+//    public void receiveSubscription(ISubscription subscription) {
+//        super.receiveSubscription(subscription);
+//        subscription.requestValues(Demand.UNLIMITED);
+//    }
 
     public Demand receiveInput(Object input) {
         onValue(input);

@@ -5,6 +5,8 @@
 
 package ru.asolovyov.combime.impl;
 
+import ru.asolovyov.combime.api.ICancellable;
+import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 
 /**
@@ -17,6 +19,16 @@ public class CurrentValueSubject extends PassthroughSubject {
 
     public CurrentValueSubject(Object currentValue) {
         this.value = currentValue;
+    }
+
+    public ICancellable subscribe(ISubscriber subscriber) {
+        ICancellable result = super.subscribe(subscriber);
+        if (value != null) {
+            super.sendValue(value);
+        } else if (failure != null) {
+            super.sendCompletion(new Completion(false, failure));
+        }
+        return result;
     }
     
     public void sendValue(Object value) {

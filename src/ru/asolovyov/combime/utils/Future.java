@@ -6,6 +6,8 @@
 package ru.asolovyov.combime.utils;
 
 import ru.asolovyov.combime.api.ICancellable;
+import ru.asolovyov.combime.api.IOperator;
+import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscriber;
 
 /**
@@ -18,8 +20,12 @@ public class Future extends Deferred {
         task.run();
     }
 
-    public ICancellable subscribe(ISubscriber subscriber) {
-        return subject.subscribe(subscriber);
+    public ICancellable sink(ISubscriber subscriber) {
+        return subject.sink(subscriber);
+    }
+
+    public IPublisher to(IOperator operator) {
+        return subject.to(operator);
     }
 }
 

@@ -18,7 +18,7 @@ public class TestJust {
 
     public void testJust() {
         Just j = new Just("Hello");
-        j.subscribe(new Sink() {
+        j.sink(new Sink() {
 
             protected void onCompletion(Completion completion) {
                 System.out.println("DONE!");

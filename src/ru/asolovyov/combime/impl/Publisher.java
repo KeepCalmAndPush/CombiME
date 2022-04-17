@@ -12,13 +12,27 @@ import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.api.ISubscriptionDelegate;
+import ru.asolovyov.combime.api.Identifiable;
 
 /**
  *
  * @author Администратор
  */
-public abstract class Publisher implements IPublisher, ISubscriptionDelegate {
+public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Identifiable {
     protected Vector subscriptions = new Vector();
+
+    private static long ID_COUNTER = 0;
+    private long id;
+
+    { generateId(); }
+
+    private synchronized void generateId() {
+        id = Publisher.ID_COUNTER++;
+    }
+
+    public long getId() {
+        return id;
+    }
 
     protected ISubscription createSubscription(ISubscriber subscriber) {
         Subscription subscription = new Subscription(subscriber);
@@ -26,7 +40,7 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate {
         return subscription;
     }
 
-    public ICancellable subscribe(ISubscriber subscriber) {
+    public ICancellable sink(ISubscriber subscriber) {
         ISubscription subscription = createSubscription(subscriber);
         subscriber.receiveSubscription(subscription);
         subscriptions.addElement(subscription);
@@ -34,13 +48,13 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate {
     }
 
     public IPublisher to(IOperator operator) {
-        System.out.println(this.getClass().getName() + " PUB TO " + operator);
-        subscribe(operator);
+        System.out.println(this.getId() + " PUB TO " + operator.getId());
+        sink(operator);
         return operator;
     }
 
     public String toString() {
-        return super.toString() + " count " + subscriptions.size();
+        return super.toString() + " subscriptions: " + subscriptions.size();
     }
 
     public void subscriptionDidCancel(ISubscription subscription) {

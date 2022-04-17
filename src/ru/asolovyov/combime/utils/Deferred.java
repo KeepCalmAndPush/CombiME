@@ -6,6 +6,8 @@
 package ru.asolovyov.combime.utils;
 
 import ru.asolovyov.combime.api.ICancellable;
+import ru.asolovyov.combime.api.IOperator;
+import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.impl.Completion;
@@ -21,37 +23,52 @@ import ru.asolovyov.combime.impl.Sink;
 public class Deferred extends Publisher {
     protected Task task;
     protected CurrentValueSubject subject = new CurrentValueSubject(null);
-    private boolean wasTaskStarted = false;
+    private boolean taskWasRun = false;
 
     public Deferred(Task task) {
         this.task = task;
 
-        task.subscribe(new Sink() {
+        task.sink(new Sink() {
             protected void onValue(Object value) {
-                System.out.println(this.getClass().getName() + " onValue " + value);
-                Deferred.this.task = null;
+                System.out.println("DEF TASK onValue " + value);
                 Deferred.this.subject.sendValue(value);
+                Deferred.this.task = null;
             }
 
             protected void onCompletion(Completion completion) {
-                Deferred.this.task = null;
                 Deferred.this.subject.sendCompletion(completion);
+                Deferred.this.task = null;
             }
         });
     }
 
-    public ICancellable subscribe(ISubscriber subscriber) {
-        ICancellable subscription = subject.subscribe(subscriber);
-        if (!wasTaskStarted) {
-            this.task.run();
-            wasTaskStarted = true;
-        }
-        
+    public ICancellable sink(ISubscriber subscriber) {
+        ICancellable subscription = subject.sink(subscriber);
+        runTaskIfNeeded();
         return subscription;
     }
 
+    public IPublisher to(IOperator operator) {
+        return subject.to(operator);
+    }
+
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
-        System.out.println(this.getClass().getName() + " subscriptionDidRequestValues");
-        subject.subscriptionDidRequestValues(subscription, demand);
+        System.out.println("DEFERRED subscriptionDidRequestValues");
+        if (taskWasRun) {
+            subject.subscriptionDidRequestValues(subscription, demand);
+        } else {
+            runTaskIfNeeded();
+        }
+    }
+
+    public void subscriptionDidCancel(ISubscription subscription) {
+        subject.subscriptionDidCancel(subscription);
+    }
+
+    private void runTaskIfNeeded() {
+        if (!taskWasRun) {
+            this.task.run();
+            taskWasRun = true;
+        }
     }
 }

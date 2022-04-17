@@ -19,7 +19,6 @@ public abstract class Subscriber implements ISubscriber {
 
     public void receiveSubscription(ISubscription subscription) {
         this.subscription = subscription;
-        subscription.requestValues(Demand.UNLIMITED);
     }
 
     public Demand receiveInput(Object input) {

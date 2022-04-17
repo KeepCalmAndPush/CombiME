@@ -6,6 +6,8 @@
 package ru.asolovyov.combime.impl;
 
 import ru.asolovyov.combime.api.ICancellable;
+import ru.asolovyov.combime.api.IOperator;
+import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 
@@ -21,19 +23,19 @@ public class CurrentValueSubject extends PassthroughSubject {
         this.value = currentValue;
     }
 
-    public ICancellable subscribe(ISubscriber subscriber) {
-        ICancellable result = super.subscribe(subscriber);
-        if (value != null) {
-            super.sendValue(value);
-        } else if (failure != null) {
-            super.sendCompletion(new Completion(false, failure));
-        }
-        return result;
-    }
+//    public ICancellable sink(ISubscriber subscriber) {
+//        ICancellable result = super.sink(subscriber);
+//        return result;
+//    }
+//
+//    public IPublisher to(IOperator operator) {
+//        IPublisher result = super.to(operator);
+//        return result;
+//    }
     
     public void sendValue(Object value) {
         this.value = value;
-        System.out.println(this.getClass().getName() + " CVS sendValue " + value);
+        System.out.println(this.getId() + " CVS sendValue " + value);
         super.sendValue(value);
     }
 
@@ -43,15 +45,16 @@ public class CurrentValueSubject extends PassthroughSubject {
     }
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
-        System.out.println(this.getClass().getName() + " CVS subscriptionDidRequestValues " + subscription + " " + demand.getValue());
+        System.out.println(this.getId() + " CVS subscriptionDidRequestValues " + subscription.getSubscriber());
+        
         if (value != null) {
-            System.out.println(this.getClass().getName() + " CVS subscriptionDidRequest Value " + value);
-            subscription.getSubscriber().receiveInput(value);
-            subscription.getSubscriber().receiveCompletion(new Completion(true, null));
+            System.out.println(this.getId() + " CVS subscription will receive value " + value);
+            this.sendValue(value);
         } else if (failure != null) {
-            System.out.println(this.getClass().getName() + " CVS subscriptionDidRequest Failure " + failure);
-            subscription.getSubscriber().receiveCompletion(new Completion(false, failure));
+            System.out.println(this.getId() + " CVS subscription will receive failure " + failure);
+            this.sendCompletion(new Completion(false, failure));
+        } else {
+            System.out.println(this.getId() + " CVS subscriptionDidRequest NOPE");
         }
-        System.out.println(this.getClass().getName() + " CVS subscriptionDidRequest NOPE");
     }
 }

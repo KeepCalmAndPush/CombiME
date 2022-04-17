@@ -37,13 +37,14 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
     protected ISubscription createSubscription(ISubscriber subscriber) {
         Subscription subscription = new Subscription(subscriber);
         subscription.setDelegate(this);
+        System.out.println("Subscription created: " + subscription.getId());
         return subscription;
     }
 
     public ICancellable sink(ISubscriber subscriber) {
         ISubscription subscription = createSubscription(subscriber);
-        subscriber.receiveSubscription(subscription);
         subscriptions.addElement(subscription);
+        subscriber.receiveSubscription(subscription);
         return subscription;
     }
 

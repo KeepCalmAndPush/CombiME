@@ -22,16 +22,6 @@ public class CurrentValueSubject extends PassthroughSubject {
     public CurrentValueSubject(Object currentValue) {
         this.value = currentValue;
     }
-
-//    public ICancellable sink(ISubscriber subscriber) {
-//        ICancellable result = super.sink(subscriber);
-//        return result;
-//    }
-//
-//    public IPublisher to(IOperator operator) {
-//        IPublisher result = super.to(operator);
-//        return result;
-//    }
     
     public void sendValue(Object value) {
         this.value = value;

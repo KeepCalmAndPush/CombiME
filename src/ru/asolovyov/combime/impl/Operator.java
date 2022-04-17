@@ -23,6 +23,7 @@ public abstract class Operator extends PassthroughSubject implements IOperator {
 
     public Demand receiveInput(Object input) {
         Object newValue = mapValue(input);
+        System.out.println("Operator " + this + " will receive input " + input);
         sendValue(newValue);
         return Demand.UNLIMITED;
     }
@@ -33,9 +34,11 @@ public abstract class Operator extends PassthroughSubject implements IOperator {
     }
 
     public ICancellable sink(ISubscriber subscriber) {
+        System.out.println("Operator will receive subscription " + subscriber);
         ISubscription subs = createSubscription(subscriber);
-        subscriber.receiveSubscription(subs);
         subscriptions.addElement(subs);
+        subscriber.receiveSubscription(subs);
+        System.out.println("Subscriptions count: " + subscriptions.size());
         return subs;
     }
 

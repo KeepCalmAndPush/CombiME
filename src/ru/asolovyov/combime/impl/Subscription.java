@@ -42,6 +42,7 @@ public class Subscription implements ISubscription {
 
     public void requestValues(Demand demand) {
         this.demand = demand;
+        System.out.println("Subscription " + this.getId() + " requested values");
         this.delegate.subscriptionDidRequestValues(this, demand);
     }
 

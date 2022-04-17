@@ -16,7 +16,7 @@ import ru.asolovyov.combime.api.ISubscription;
 public class PassthroughSubject extends Publisher implements ISubject {
     public void sendValue(Object value) {
         Enumeration elements = subscriptions.elements();
-        System.out.println(this.getId() + " PTS Sending value " + value);
+        System.out.println(this.getId() + " PTS sendValue " + value);
         while (elements.hasMoreElements()) {
             Subscription element = (Subscription)elements.nextElement();
             System.out.println("to " + element.getSubscriber());

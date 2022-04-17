@@ -20,6 +20,18 @@ public final class Completion {
         this.failure = failure;
     }
 
+    public Completion(Exception failure) {
+        this(false, failure);
+    }
+
+    public Completion(boolean isSuccess) {
+        this(true, null);
+        this.isSuccess = isSuccess;
+        if (!isSuccess) {
+            this.failure = new Exception();
+        }
+    }
+
     /**
      * @return the isSuccess
      */

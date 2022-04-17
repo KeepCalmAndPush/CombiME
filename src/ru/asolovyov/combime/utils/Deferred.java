@@ -5,87 +5,70 @@
 
 package ru.asolovyov.combime.utils;
 
-import java.util.Enumeration;
 import ru.asolovyov.combime.api.ICancellable;
-import ru.asolovyov.combime.api.ISubject;
+import ru.asolovyov.combime.api.IOperator;
+import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.impl.Completion;
-import ru.asolovyov.combime.impl.PassthroughSubject;
+import ru.asolovyov.combime.impl.CurrentValueSubject;
+import ru.asolovyov.combime.impl.Demand;
 import ru.asolovyov.combime.impl.Publisher;
-import ru.asolovyov.combime.impl.Subscriber;
-import ru.asolovyov.combime.impl.Subscription;
+import ru.asolovyov.combime.impl.Sink;
 
 /**
  *
  * @author Администратор
  */
 public class Deferred extends Publisher {
-    private Task task;
-    private Object value;
-    private Exception failure;
-    private ISubject completion;
-    private boolean wasTaskStarted = false;
+    protected Task task;
+    protected CurrentValueSubject subject = new CurrentValueSubject(null);
+    private boolean taskWasRun = false;
 
     public Deferred(Task task) {
         this.task = task;
 
-        completion = new PassthroughSubject();
-        completion.subscribe(new Subscriber() {
+        task.sink(new Sink() {
             protected void onValue(Object value) {
-                Deferred.this.value = value;
+                System.out.println("DEF TASK onValue " + value);
+                Deferred.this.subject.sendValue(value);
                 Deferred.this.task = null;
-                Deferred.this.sendValue(value);
-                Deferred.this.sendCompletion(new Completion(true, null));
-                Deferred.this.subscriptions.removeAllElements();
             }
 
             protected void onCompletion(Completion completion) {
-                Deferred.this.failure = completion.getFailure();
+                Deferred.this.subject.sendCompletion(completion);
                 Deferred.this.task = null;
-                Deferred.this.sendCompletion(completion);
-                Deferred.this.subscriptions.removeAllElements();
             }
         });
     }
 
-    protected ISubscription createSubscription(ISubscriber subscriber) {
-        Subscription subscription = new Subscription(subscriber);
+    public ICancellable sink(ISubscriber subscriber) {
+        ICancellable subscription = subject.sink(subscriber);
+        runTaskIfNeeded();
         return subscription;
     }
 
-    public ICancellable subscribe(ISubscriber subscriber) {
-        if (!wasTaskStarted) {
-            this.task.peformWithCompletion(completion);
-            wasTaskStarted = true;
-        }
-        
-        Subscription subscription = (Subscription) super.subscribe(subscriber);
-        if (value != null) {
-            subscription.sendValue(value);
-            subscription.sendCompletion(new Completion(true, null));
-            subscriptions.removeElement(subscription);
-        } else if (failure != null) {
-            subscription.sendCompletion(new Completion(false, failure));
-            subscriptions.removeElement(subscription);
-        }
-        return subscription;
+    public IPublisher to(IOperator operator) {
+        return subject.to(operator);
     }
 
-    private void sendValue(Object value) {
-        Enumeration elements = subscriptions.elements();
-        while (elements.hasMoreElements()) {
-            Subscription element = (Subscription)elements.nextElement();
-            element.sendValue(value);
+    public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
+        System.out.println("DEFERRED subscriptionDidRequestValues");
+        if (taskWasRun) {
+            subject.subscriptionDidRequestValues(subscription, demand);
+        } else {
+            runTaskIfNeeded();
         }
     }
 
-    private void sendCompletion(Completion completion) {
-        Enumeration elements = subscriptions.elements();
-        while (elements.hasMoreElements()) {
-            Subscription element = (Subscription)elements.nextElement();
-            element.sendCompletion(completion);
+    public void subscriptionDidCancel(ISubscription subscription) {
+        subject.subscriptionDidCancel(subscription);
+    }
+
+    private void runTaskIfNeeded() {
+        if (!taskWasRun) {
+            this.task.run();
+            taskWasRun = true;
         }
-        subscriptions.removeAllElements();
     }
 }

@@ -7,52 +7,52 @@ package ru.asolovyov.combime.impl;
 
 import ru.asolovyov.combime.api.ICancellable;
 import ru.asolovyov.combime.api.IOperator;
-import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscriber;
-import ru.asolovyov.combime.api.ISubject;
+import ru.asolovyov.combime.api.ISubscription;
 
 /**
  *
  * @author Администратор
  */
-public abstract class Operator extends Subscriber implements IOperator {
-    private ISubject publisher = new PassthroughSubject();
+public abstract class Operator extends PassthroughSubject implements IOperator {
+    protected ISubscription subscription;
 
-    //publisher
-    public ICancellable subscribe(ISubscriber subscriber) {
-        return getPublisher().subscribe(subscriber);
+    public void receiveSubscription(ISubscription subscription) {
+        this.subscription = subscription;
     }
 
-    public IPublisher to(IOperator operator) {
-        subscribe(operator);
-        return operator;
+    public Demand receiveInput(Object input) {
+        Object newValue = mapValue(input);
+        System.out.println("Operator " + this + " will receive input " + input);
+        sendValue(newValue);
+        return Demand.UNLIMITED;
     }
 
-    //subscriber
-    protected void onValue(Object value) {
-        Object newValue = mapValue(value);
-        System.out.println("VALUE " + value + " MAPPED TO " + newValue);
-        getPublisher().sendValue(newValue);
-    }
-
-    protected void onCompletion(Completion completion) {
+    public void receiveCompletion(Completion completion) {
         Completion newCompletion = mapCompletion(completion);
-        getPublisher().sendCompletion(newCompletion);
+        sendCompletion(newCompletion);
     }
 
-    public Object mapValue(Object value) {
+    public ICancellable sink(ISubscriber subscriber) {
+        System.out.println("Operator will receive subscription " + subscriber);
+        ISubscription subs = createSubscription(subscriber);
+        subscriptions.addElement(subs);
+        subscriber.receiveSubscription(subs);
+        System.out.println("Subscriptions count: " + subscriptions.size());
+        return subs;
+    }
+
+    protected Object mapValue(Object value) {
         return value;
     }
 
-    public Completion mapCompletion(Completion completion) {
+    protected Completion mapCompletion(Completion completion) {
         return completion;
     }
 
-    protected ISubject getPublisher() {
-        return publisher;
-    }
-
-    protected void setPublisher(ISubject publisher) {
-        this.publisher = publisher;
+    public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
+        if (this.subscription != null) {
+            this.subscription.requestValues(demand);
+        }
     }
 }

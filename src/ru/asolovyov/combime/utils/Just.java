@@ -5,40 +5,39 @@
 
 package ru.asolovyov.combime.utils;
 
+import ru.asolovyov.combime.api.ICancellable;
+import ru.asolovyov.combime.api.IOperator;
+import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
-import ru.asolovyov.combime.impl.Completion;
+import ru.asolovyov.combime.impl.CurrentValueSubject;
+import ru.asolovyov.combime.impl.Demand;
 import ru.asolovyov.combime.impl.Publisher;
-import ru.asolovyov.combime.impl.Subscription;
 
 /**
  *
  * @author Администратор
  */
 public class Just extends Publisher {
-    private Object value;
+    private CurrentValueSubject subject = new CurrentValueSubject(null);
 
     public Just(Object value) {
-        this.value = value;
+        subject.sendValue(value);
     }
 
-    protected ISubscription createSubscription(ISubscriber subscriber) {
-        return new Subscription(subscriber) {
+    public ICancellable sink(ISubscriber subscriber) {
+        return subject.sink(subscriber);
+    }
 
-            private boolean isEmitted = false;
+    public IPublisher to(IOperator operator) {
+        return subject.to(operator);
+    }
 
-            protected boolean mayEmitValue() {
-                return super.mayEmitValue() && !isEmitted;
-            }
+    public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
+        subject.subscriptionDidRequestValues(subscription, demand);
+    }
 
-            protected Object emitValue() {
-                isEmitted = true;
-                return value;
-            }
-
-            protected Completion emitCompletion() {
-                return new Completion(true, null);
-            }
-        };
+    public void subscriptionDidCancel(ISubscription subscription) {
+        subject.subscriptionDidCancel(subscription);
     }
 }

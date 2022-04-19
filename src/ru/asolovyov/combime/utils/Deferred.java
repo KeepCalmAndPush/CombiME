@@ -30,7 +30,7 @@ public class Deferred extends Publisher {
 
         task.sink(new Sink() {
             protected void onValue(Object value) {
-                System.out.println("DEF TASK onValue " + value);
+                S.debug("DEF TASK onValue " + value);
                 Deferred.this.subject.sendValue(value);
                 Deferred.this.task = null;
             }
@@ -53,7 +53,7 @@ public class Deferred extends Publisher {
     }
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
-        System.out.println("DEFERRED subscriptionDidRequestValues");
+        S.debug("DEFERRED subscriptionDidRequestValues");
         if (taskWasRun) {
             subject.subscriptionDidRequestValues(subscription, demand);
         } else {

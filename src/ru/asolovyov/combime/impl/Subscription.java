@@ -7,6 +7,7 @@ package ru.asolovyov.combime.impl;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.api.ISubscriptionDelegate;
+import ru.asolovyov.combime.utils.S;
 
 /**
  *
@@ -42,7 +43,7 @@ public class Subscription implements ISubscription {
 
     public void requestValues(Demand demand) {
         this.demand = demand;
-        System.out.println("Subscription " + this.getId() + " requested values");
+        S.debug("Subscription " + this.getId() + " requested values");
         this.delegate.subscriptionDidRequestValues(this, demand);
     }
 

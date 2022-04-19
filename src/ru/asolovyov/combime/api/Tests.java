@@ -21,7 +21,7 @@ import ru.asolovyov.combime.utils.Task;
 /**
  * @author Администратор
  */
-public class TestSuite extends MIDlet {
+public class Tests extends MIDlet {
     private Display display;
     private Form form = new Form("CombiME-Test");
 
@@ -33,14 +33,24 @@ public class TestSuite extends MIDlet {
 //        testJust();
 //        testFutureMap();
 //        testMap();
-        testEmpty();
-        testFail();
-    }
+//        testEmpty();
+//        testFail();
 
-    public void pauseApp() {
-    }
+//        testCancel();
 
-    public void destroyApp(boolean unconditional) {
+        IPublisher tests[] = {
+            this.testCancel,
+            this.testEmpty
+        };
+
+        for (int i = 0; i < tests.length; i++) {
+            IPublisher test = tests[i];
+            test.sink(new Sink() {
+                protected void onValue(Object value) {
+                    S.log(value);
+                }
+            });
+        }
     }
 
     private Future future;
@@ -54,6 +64,44 @@ public class TestSuite extends MIDlet {
             S.log("1: " + (String) value);
         }
     };
+
+    private IPublisher testCancel = new Future(new Task() {
+        Future future = new Future(new Task() {
+            Thread t = new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        Thread.sleep(1000);
+                        sendValue("hello!");
+                    } catch (InterruptedException ex) {
+                        throw new Error();
+                    }
+                }
+            });
+            public void run() {
+                t.start();
+            }
+        });
+        
+        private Object result;
+        ICancellable cancelable = future.sink(new Sink() {
+            protected void onValue(Object value) {
+                result = value;
+            }
+        });
+
+        Thread assertThread = new Thread(new Runnable() {
+            public void run() {
+                S.sleep(500);
+                cancelable.cancel();
+                S.sleep(1000);
+                sendValue("TEST CANCEL: " + (result == null ? "OK" : "FAILED"));
+            }
+        });
+
+        public void run() {
+            assertThread.start();
+        }
+    });
 
     private void testS1S2() {
         if (pts == null) {
@@ -152,23 +200,23 @@ public class TestSuite extends MIDlet {
         ic = future.to(map1).to(map2).sink(sink);
     }
 
-    private void testEmpty() {
-        Empty e = new Empty();
-        e.sink(new Sink() {
-
-            protected void onValue(Object value) {
-                S.log("EMPTY FAILED!");
-            }
-
-            protected void onCompletion(Completion completion) {
-                if (completion.isSuccess()) {
-                    S.log("EMPTY OK!");
-                } else {
-                    S.log("EMPTY FAILED!");
+    private IPublisher testEmpty = new Future(new Task() {
+        public void run() {
+            Empty e = new Empty();
+            e.sink(new Sink() {
+                protected void onValue(Object value) {
+                    sendValue("TEST EMPTY: FAILED, EMPTY RETURNED VALUE");
                 }
-            }
-        });
-    }
+                protected void onCompletion(Completion completion) {
+                    if (completion.isSuccess()) {
+                        sendValue("TEST EMPTY: OK");
+                    } else {
+                       sendValue("TEST EMPTY: FAILED, RETURNED FAILED COMPLETION");
+                    }
+                }
+            });
+        }
+    });
 
     private void testFail() {
         Fail e = new Fail();
@@ -186,5 +234,11 @@ public class TestSuite extends MIDlet {
                 }
             }
         });
+    }
+
+    protected void destroyApp(boolean unconditional) throws MIDletStateChangeException {
+    }
+
+    protected void pauseApp() {
     }
 }

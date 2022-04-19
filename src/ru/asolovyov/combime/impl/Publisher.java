@@ -13,6 +13,7 @@ import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.api.ISubscriptionDelegate;
 import ru.asolovyov.combime.api.Identifiable;
+import ru.asolovyov.combime.utils.S;
 
 /**
  *
@@ -37,7 +38,7 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
     protected ISubscription createSubscription(ISubscriber subscriber) {
         Subscription subscription = new Subscription(subscriber);
         subscription.setDelegate(this);
-        System.out.println("Subscription created: " + subscription.getId());
+        S.debug("Subscription created: " + subscription.getId());
         return subscription;
     }
 
@@ -49,7 +50,7 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
     }
 
     public IPublisher to(IOperator operator) {
-        System.out.println(this.getId() + " PUB TO " + operator.getId());
+        S.debug(this.getId() + " PUB TO " + operator.getId());
         sink(operator);
         return operator;
     }

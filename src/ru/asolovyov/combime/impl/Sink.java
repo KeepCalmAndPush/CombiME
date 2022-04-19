@@ -6,6 +6,7 @@
 package ru.asolovyov.combime.impl;
 
 import ru.asolovyov.combime.api.ISubscription;
+import ru.asolovyov.combime.utils.S;
 
 /**
  *
@@ -17,18 +18,18 @@ public abstract class Sink extends Subscriber {
 
     public void receiveSubscription(ISubscription subscription) {
         super.receiveSubscription(subscription);
-        System.out.println("SINK WILL REQUEST VALUE FROM " + subscription);
+        S.debug("SINK WILL REQUEST VALUE FROM " + subscription);
         subscription.requestValues(Demand.UNLIMITED);
     }
 
     public Demand receiveInput(Object input) {
-        System.out.println("SINK DID RECEIVE input " + input);
+        S.debug("SINK DID RECEIVE input " + input);
         onValue(input);
         return Demand.UNLIMITED;
     }
 
     public void receiveCompletion(Completion completion) {
-        System.out.println("SINK DID RECEIVE completion " + completion);
+        S.debug("SINK DID RECEIVE completion " + completion);
         onCompletion(completion);
     }
 }

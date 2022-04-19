@@ -13,4 +13,16 @@ public class S {
     public static void log(Object s) {
         System.out.println(s);
     }
+
+    public static void debug(Object s) {
+//        System.out.println(s);
+    }
+
+    public static void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (Exception ex) {
+            throw new Error("SLEEP INTERRUPTED!");
+        }
+    }
 }

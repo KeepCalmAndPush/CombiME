@@ -10,6 +10,7 @@ import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
+import ru.asolovyov.combime.utils.S;
 
 /**
  *
@@ -25,7 +26,7 @@ public class CurrentValueSubject extends PassthroughSubject {
     
     public void sendValue(Object value) {
         this.value = value;
-        System.out.println(this.getId() + " CVS sendValue " + value);
+        S.debug(this.getId() + " CVS sendValue " + value);
         super.sendValue(value);
     }
 
@@ -35,16 +36,16 @@ public class CurrentValueSubject extends PassthroughSubject {
     }
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
-        System.out.println(this.getId() + " CVS subscriptionDidRequestValues " + subscription.getSubscriber());
+        S.debug(this.getId() + " CVS subscriptionDidRequestValues " + subscription.getSubscriber());
         
         if (value != null) {
-            System.out.println(this.getId() + " CVS subscription will receive value " + value);
+            S.debug(this.getId() + " CVS subscription will receive value " + value);
             this.sendValue(value);
         } else if (failure != null) {
-            System.out.println(this.getId() + " CVS subscription will receive failure " + failure);
+            S.debug(this.getId() + " CVS subscription will receive failure " + failure);
             this.sendCompletion(new Completion(false, failure));
         } else {
-            System.out.println(this.getId() + " CVS subscriptionDidRequest NOPE");
+            S.debug(this.getId() + " CVS subscriptionDidRequest NOPE");
         }
     }
 }

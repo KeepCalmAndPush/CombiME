@@ -9,6 +9,9 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.midlet.*;
 import ru.asolovyov.combime.impl.Completion;
 import ru.asolovyov.combime.impl.CurrentValueSubject;
+import ru.asolovyov.combime.impl.PassthroughSubject;
+import ru.asolovyov.combime.impl.Reduce;
+import ru.asolovyov.combime.impl.Scan;
 import ru.asolovyov.combime.impl.Sink;
 import ru.asolovyov.combime.utils.Empty;
 import ru.asolovyov.combime.utils.Fail;
@@ -17,11 +20,13 @@ import ru.asolovyov.combime.utils.Just;
 import ru.asolovyov.combime.utils.Map;
 import ru.asolovyov.combime.utils.S;
 import ru.asolovyov.combime.utils.Task;
+import ru.asolovyov.combime.utils.TestCase;
 
 /**
  * @author Администратор
  */
 public class Tests extends MIDlet {
+
     private Display display;
     private Form form = new Form("CombiME-Test");
 
@@ -30,108 +35,91 @@ public class Tests extends MIDlet {
         form.append("Hello, tests!");
         display.setCurrent(form);
 
-//        testJust();
-//        testFutureMap();
-//        testMap();
-//        testEmpty();
-//        testFail();
-
-//        testCancel();
-
         IPublisher tests[] = {
+            this.testJust,
+            this.testEmpty,
+            this.testFail,
+            this.testReduce,
             this.testCancel,
-            this.testEmpty
+            this.testFutureMap,
+            this.testScan
         };
 
         for (int i = 0; i < tests.length; i++) {
             IPublisher test = tests[i];
             test.sink(new Sink() {
+
                 protected void onValue(Object value) {
                     S.log(value);
                 }
             });
         }
     }
+    
+    private IPublisher testCancel = new TestCase("CANCEL") {
+        Future future;
+        private Object result;
+        ICancellable cancelable;
+        Thread assertThread;
 
-    private Future future;
-    Just j;
-
-    private ISubscriber secondSub = null;
-    ICancellable s1, s2;
-    private ISubject pts = null;
-    private ISubscriber firstSub = new Sink() {
-        protected void onValue(Object value) {
-            S.log("1: " + (String) value);
-        }
-    };
-
-    private IPublisher testCancel = new Future(new Task() {
-        Future future = new Future(new Task() {
-            Thread t = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        Thread.sleep(1000);
+        protected void test() {
+            future = new Future(new Task() {
+                Thread t = new Thread(new Runnable() {
+                    public void run() {
+                        S.sleep(1000);
                         sendValue("hello!");
-                    } catch (InterruptedException ex) {
-                        throw new Error();
+                    }
+                });
+
+                public void run() {
+                    t.start();
+                }
+            });
+
+            cancelable = future.sink(new Sink() {
+                protected void onValue(Object value) {
+                    result = value;
+                }
+            });
+
+            assertThread = new Thread(new Runnable() {
+                public void run() {
+                    S.sleep(500);
+                    cancelable.cancel();
+                    S.sleep(1000);
+                    if (result == null) {
+                        succeed();
+                    } else {
+                        fail();
                     }
                 }
             });
-            public void run() {
-                t.start();
-            }
-        });
-        
-        private Object result;
-        ICancellable cancelable = future.sink(new Sink() {
-            protected void onValue(Object value) {
-                result = value;
-            }
-        });
-
-        Thread assertThread = new Thread(new Runnable() {
-            public void run() {
-                S.sleep(500);
-                cancelable.cancel();
-                S.sleep(1000);
-                sendValue("TEST CANCEL: " + (result == null ? "OK" : "FAILED"));
-            }
-        });
-
-        public void run() {
+            
             assertThread.start();
         }
-    });
-
-    private void testS1S2() {
-        if (pts == null) {
-            pts = new CurrentValueSubject("S1S2");
-            s1 = pts.sink(firstSub);
-        }
-        if (secondSub == null) {
-            secondSub = new Sink() {
+    };
+    
+    private IPublisher testJust = new TestCase("JUST") {
+        protected void test() {
+            (new Just("Hello COMBIME!")).sink(new Sink() {
                 protected void onValue(Object value) {
-                    S.log("2: " + (String) value);
+                    if (value.equals("Hello COMBIME!")) {
+                        succeed();
+                        return;
+                    }
+                    fail();
                 }
-            };
+
+                protected void onCompletion(Completion completion) {
+                    if (!completion.isSuccess()) {
+                        fail();
+                    }
+                }
+            });
         }
-        s2 = pts.sink(secondSub);
-    }
-
-    private void testJust() {
-        j = new Just("Hello COMBIME!");
-        j.to(new Map() {
-            public Object mapValue(Object value) {
-                return ((String) value) + " length = " + ((String) value).length();
-            }
-        }).sink(new Sink() {
-            protected void onValue(Object value) {
-                S.log("Just SINK " + value);
-            }
-        });
-    }
-
+    };
     Map mm = new Map() {
+
         public Object mapValue(Object value) {
             return "KEK: " + value;
         }
@@ -139,34 +127,36 @@ public class Tests extends MIDlet {
 
     private void testMap() {
         mm.to(new Map() {
+
             public Object mapValue(Object value) {
                 String ret = "ONE MORE MAP " + value;
                 return ret;
             }
         }).to(new Map() {
+
             public Object mapValue(Object value) {
                 String ret = "$$$ " + value + " $$$";
                 return ret;
             }
         }).sink(new Sink() {
+
             protected void onValue(Object value) {
                 S.log("SINK: " + value);
             }
         });
         mm.receiveInput("WTF");
     }
-
     ICancellable ic;
-    private void testFutureMap() {
-        future = new Future(new Task() {
+
+    private IPublisher testFutureMap = new TestCase("FUTURE + MAP") {
+        private Future future;
+
+        protected void test() {
+            future = new Future(new Task() {
             Thread t = new Thread(new Runnable() {
                 public void run() {
-                    try {
-                        Thread.sleep(3000);
-                        sendValue("hello!");
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                    S.sleep(3000);
+                    sendValue("hello");
                 }
             });
 
@@ -175,66 +165,140 @@ public class Tests extends MIDlet {
             }
         });
 
-        S.log("Future id " + future.getId());
-
         Map map1 = new Map() {
             public Object mapValue(Object value) {
-                Object ret = ((String) value).toUpperCase();
+                Object ret = "1" + value;
                 return ret;
             }
         };
 
         Map map2 = new Map() {
             public Object mapValue(Object value) {
-                String ret = "2 " + value;
+                String ret = value + "2";
                 return ret;
             }
         };
 
-        Sink sink = new Sink() {
-            protected void onValue(Object value) {
-                S.log("SINK: " + value);
-            }
-        };
-
-        ic = future.to(map1).to(map2).sink(sink);
-    }
-
-    private IPublisher testEmpty = new Future(new Task() {
-        public void run() {
-            Empty e = new Empty();
-            e.sink(new Sink() {
+        future.to(map1).to(map2).sink(new Sink() {
                 protected void onValue(Object value) {
-                    sendValue("TEST EMPTY: FAILED, EMPTY RETURNED VALUE");
+                    if (value.equals("1hello2")) {
+                        succeed();
+                        return;
+                    }
+                    fail();
                 }
+        });
+        }
+    };
+
+
+    private IPublisher testEmpty = new TestCase("EMPTY") {
+        protected void test() {
+            (new Empty()).sink(new Sink() {
+
+                protected void onValue(Object value) {
+                    fail();
+                }
+
                 protected void onCompletion(Completion completion) {
                     if (completion.isSuccess()) {
-                        sendValue("TEST EMPTY: OK");
+                        succeed();
                     } else {
-                       sendValue("TEST EMPTY: FAILED, RETURNED FAILED COMPLETION");
+                        fail();
                     }
                 }
             });
         }
-    });
+    };
 
-    private void testFail() {
-        Fail e = new Fail();
-        e.sink(new Sink() {
+    private IPublisher testFail = new TestCase("FAIL") {
+        protected void test() {
+            (new Fail()).sink(new Sink() {
 
-            protected void onValue(Object value) {
-                S.log("FAIL FAILED!");
-            }
-
-            protected void onCompletion(Completion completion) {
-                if (completion.isSuccess()) {
-                    S.log("FAIL FAILED!");
-                } else {
-                    S.log("FAIL OK!");
+                protected void onValue(Object value) {
+                    fail();
                 }
-            }
-        });
-    }
+
+                protected void onCompletion(Completion completion) {
+                    if (completion.isSuccess()) {
+                        fail();
+                    } else {
+                        succeed();
+                    }
+                }
+            });
+        }
+    };
+    private IPublisher testReduce = new TestCase("REDUCE") {
+        private String result = "";
+        
+        protected void test() {
+            ISubject subject1 = new PassthroughSubject();
+            ISubject subject2 = new PassthroughSubject();
+            ISubject subject3 = new PassthroughSubject();
+
+            subject1.to(new Reduce("", new IPublisher[]{subject2, subject3}) {
+
+                protected Object reduce(Object subresult, Object currentValue) {
+                    String result = (String) subresult;
+                    result = result + (String) currentValue;
+                    return result;
+                }
+            }).sink(new Sink() {
+
+                protected void onValue(Object value) {
+                    result = (String) value;
+                }
+
+                protected void onCompletion(Completion completion) {
+                    if (completion.isSuccess() && result.equals("123")) {
+                        succeed();
+                        return;
+                    }
+                    fail();
+                }
+            });
+
+            subject1.sendValue("1");
+            subject1.sendCompletion(new Completion(true));
+
+            subject2.sendValue("2");
+            subject3.sendValue("3");
+
+            subject3.sendCompletion(new Completion(true));
+            subject2.sendCompletion(new Completion(true));
+        }
+    };
+
+    private IPublisher testScan = new TestCase("SCAN") {
+        private String result = "";
+
+        protected void test() {
+            result = "";
+            ISubject subj = new PassthroughSubject();
+            subj.to(new Scan("") {
+                protected Object scan(Object subresult, Object currentValue) {
+                    return (String)subresult + currentValue;
+                }
+            }).sink(new Sink() {
+                protected void onValue(Object value) {
+                    result += (String)value;
+                }
+                protected void onCompletion(Completion completion) {
+                    if (completion.isSuccess() && result.equals("112123")) {
+                        succeed();
+                        return;
+                    }
+                    fail();
+                }
+            });
+
+            subj.sendValue("1");
+            subj.sendValue("2");
+            subj.sendValue("3");
+            subj.sendCompletion(new Completion(true));
+        }
+    };
 
     protected void destroyApp(boolean unconditional) throws MIDletStateChangeException {
     }

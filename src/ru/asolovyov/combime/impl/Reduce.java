@@ -5,7 +5,7 @@
 
 package ru.asolovyov.combime.impl;
 
-import java.util.Vector;
+import java.util.Hashtable;
 import ru.asolovyov.combime.api.ICancellable;
 import ru.asolovyov.combime.api.IPublisher;
 
@@ -15,34 +15,27 @@ import ru.asolovyov.combime.api.IPublisher;
  */
 public abstract class Reduce extends Operator {
     private Object result;
-    private IPublisher[] publishers;
-    private Vector cancellables = new Vector();
+    private Hashtable cancellables = new Hashtable();
 
-    public Reduce(IPublisher publisher) {
-        this(new IPublisher[]{publisher});
+    public Reduce(Object initialResult, IPublisher publisher) {
+        this(initialResult, new IPublisher[]{publisher});
     }
 
-    public Reduce(IPublisher[] publishers) {
-        this.publishers = publishers;
-
+    public Reduce(Object initialResult, IPublisher[] publishers) {
+        this.result = initialResult;
         for (int i = 0; i < publishers.length; i++) {
+            final int index = i;
             IPublisher publisher = publishers[i];
-            ICancellable token = publisher.sink(new Sink() {
-
+            final ICancellable token = publisher.sink(new Sink() {
                 protected void onValue(Object value) {
-                    result = reduce(result, value);
+                    Reduce.this.processInput(value);
                 }
 
                 protected void onCompletion(Completion completion) {
-                    if (!completion.isSuccess()) {
-                        //поканселить всё нахер
-                        sendCompletion(completion);
-                    }
-                    //проверить что не осталось больше подписок
-                    //если не осталось - кинуть успешный комплишен
+                    Reduce.this.processCompletion(completion, new Integer(index));
                 }
             });
-            cancellables.addElement(token);
+            cancellables.put(new Integer(i), token);
         }
     }
 
@@ -50,16 +43,34 @@ public abstract class Reduce extends Operator {
 
     public Demand receiveInput(Object input) {
         Demand demand = super.receiveInput(input);
-        this.result = this.reduce(this.result, input);
+        processInput(input);
         return demand;
     }
 
     public void receiveCompletion(Completion completion) {
-        if (!completion.isSuccess()) {
-            //поканселить всё нахер
-            this.sendCompletion(completion);
+        processCompletion(completion, null);
+    }
+
+    private void processInput(Object input) {
+        result = reduce(result, input);
+    }
+
+    private void processCompletion(Completion completion, Integer nullableCancellableKey) {
+        if (nullableCancellableKey != null) {
+            cancellables.remove(nullableCancellableKey);
         }
-        //проверить что не осталось больше подписок
-        //если не осталось - кинуть успешный комплишен
+
+        if (!completion.isSuccess()) {
+            cancellables.clear();
+            sendCompletion(completion);
+            return;
+        }
+
+        if (!cancellables.isEmpty()) {
+            return;
+        }
+
+        sendValue(result);
+        sendCompletion(new Completion(true));
     }
 }

@@ -33,7 +33,7 @@ public class PassthroughSubject extends Publisher implements ISubject {
             S.debug(this.getId() + " PTS Sending completion to " + element);
             element.sendCompletion(completion);
         }
-//        subscriptions.removeAllElements();
+        subscriptions.removeAllElements();
     }
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {

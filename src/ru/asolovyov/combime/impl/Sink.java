@@ -13,7 +13,7 @@ import ru.asolovyov.combime.utils.S;
  * @author Администратор
  */
 public abstract class Sink extends Subscriber {
-    protected void onValue(Object value) { };
+    protected void onValue(Object value) {};
     protected void onCompletion(Completion completion) {};
 
     public void receiveSubscription(ISubscription subscription) {

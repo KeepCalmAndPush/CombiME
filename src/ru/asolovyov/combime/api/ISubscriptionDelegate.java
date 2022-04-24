@@ -5,7 +5,7 @@
 
 package ru.asolovyov.combime.api;
 
-import ru.asolovyov.combime.impl.Demand;
+import ru.asolovyov.combime.common.Demand;
 
 /**
  *

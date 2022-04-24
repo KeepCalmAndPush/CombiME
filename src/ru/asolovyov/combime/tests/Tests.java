@@ -2,25 +2,32 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ru.asolovyov.combime.api;
+package ru.asolovyov.combime.tests;
 
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Form;
 import javax.microedition.midlet.*;
-import ru.asolovyov.combime.impl.Completion;
-import ru.asolovyov.combime.impl.CurrentValueSubject;
-import ru.asolovyov.combime.impl.PassthroughSubject;
-import ru.asolovyov.combime.impl.Reduce;
-import ru.asolovyov.combime.impl.Scan;
-import ru.asolovyov.combime.impl.Sink;
-import ru.asolovyov.combime.utils.Empty;
-import ru.asolovyov.combime.utils.Fail;
-import ru.asolovyov.combime.utils.Future;
-import ru.asolovyov.combime.utils.Just;
-import ru.asolovyov.combime.utils.Map;
-import ru.asolovyov.combime.utils.S;
-import ru.asolovyov.combime.utils.Task;
-import ru.asolovyov.combime.utils.TestCase;
+import ru.asolovyov.combime.api.ICancellable;
+import ru.asolovyov.combime.api.IPublisher;
+import ru.asolovyov.combime.api.ISubject;
+import ru.asolovyov.combime.api.ISubscription;
+import ru.asolovyov.combime.common.Completion;
+import ru.asolovyov.combime.common.Demand;
+import ru.asolovyov.combime.operators.Merge;
+import ru.asolovyov.combime.subjects.PassthroughSubject;
+import ru.asolovyov.combime.operators.Reduce;
+import ru.asolovyov.combime.operators.Scan;
+import ru.asolovyov.combime.common.Sink;
+import ru.asolovyov.combime.publishers.Empty;
+import ru.asolovyov.combime.publishers.Fail;
+import ru.asolovyov.combime.publishers.Future;
+import ru.asolovyov.combime.publishers.Just;
+import ru.asolovyov.combime.operators.Map;
+import ru.asolovyov.combime.common.S;
+import ru.asolovyov.combime.common.Subscriber;
+import ru.asolovyov.combime.common.Task;
+import ru.asolovyov.combime.publishers.Publisher;
+import ru.asolovyov.combime.publishers.Sequence;
 
 /**
  * @author Администратор
@@ -32,7 +39,6 @@ public class Tests extends MIDlet {
 
     public void startApp() {
         display = Display.getDisplay(this);
-        form.append("Hello, tests!");
         display.setCurrent(form);
 
         IPublisher tests[] = {
@@ -42,20 +48,33 @@ public class Tests extends MIDlet {
             this.testReduce,
             this.testCancel,
             this.testFutureMap,
-            this.testScan
+            this.testScan,
+            this.testMergeReduce,
+            this.testSequence,
+            this.testMap
         };
 
-        for (int i = 0; i < tests.length; i++) {
-            IPublisher test = tests[i];
-            test.sink(new Sink() {
+        Publisher.merge(tests).sink(new Sink() {
+            protected void onValue(Object value) {
+                S.log(value);
+                form.append(value + "\n");
+            }
+            protected void onCompletion(Completion completion) {
+                S.log("LE FIN!");
+            }
+        });
 
-                protected void onValue(Object value) {
-                    S.log(value);
-                }
-            });
-        }
+//        for (int i = 0; i < tests.length; i++) {
+//            IPublisher test = tests[i];
+//            test.sink(new Sink() {
+//                protected void onValue(Object value) {
+//                    S.log(value);
+//                    form.append(value + "\n");
+//                }
+//            });
+//        }
     }
-    
+
     private IPublisher testCancel = new TestCase("CANCEL") {
         Future future;
         private Object result;
@@ -94,11 +113,11 @@ public class Tests extends MIDlet {
                     }
                 }
             });
-            
+
             assertThread.start();
         }
     };
-    
+
     private IPublisher testJust = new TestCase("JUST") {
         protected void test() {
             (new Just("Hello COMBIME!")).sink(new Sink() {
@@ -118,37 +137,45 @@ public class Tests extends MIDlet {
             });
         }
     };
-    Map mm = new Map() {
 
-        public Object mapValue(Object value) {
-            return "KEK: " + value;
+    private IPublisher testMap = new TestCase("TEST RAW MAP") {
+        String result = "";
+        protected void test() {
+            Map m = new Map() {
+                public Object mapValue(Object value) {
+                    return ((String)value).toUpperCase();
+                }
+            };
+
+            m.to(new Map() {
+                public Object mapValue(Object value) {
+                    String ret = "" + value + value;
+                    return ret;
+                }
+            }).to(new Map() {
+                public Object mapValue(Object value) {
+                    String ret = "!" + value + "!";
+                    return ret;
+                }
+            }).sink(new Sink() {
+                protected void onValue(Object value) {
+                    result = (String)value;
+                }
+
+                protected void onCompletion(Completion completion) {
+                    if (completion.isSuccess() && result.equals("!AA!")) {
+                        succeed();
+                        return;
+                    }
+                    fail();
+                }
+            });
+            m.receiveInput("a");
+            m.receiveCompletion(new Completion(true));
         }
     };
 
-    private void testMap() {
-        mm.to(new Map() {
-
-            public Object mapValue(Object value) {
-                String ret = "ONE MORE MAP " + value;
-                return ret;
-            }
-        }).to(new Map() {
-
-            public Object mapValue(Object value) {
-                String ret = "$$$ " + value + " $$$";
-                return ret;
-            }
-        }).sink(new Sink() {
-
-            protected void onValue(Object value) {
-                S.log("SINK: " + value);
-            }
-        });
-        mm.receiveInput("WTF");
-    }
-    ICancellable ic;
-
-    private IPublisher testFutureMap = new TestCase("FUTURE + MAP") {
+    private IPublisher testFutureMap = new TestCase("FUTURE+MAP") {
         private Future future;
 
         protected void test() {
@@ -229,27 +256,21 @@ public class Tests extends MIDlet {
             });
         }
     };
+
     private IPublisher testReduce = new TestCase("REDUCE") {
         private String result = "";
-        
+
         protected void test() {
-            ISubject subject1 = new PassthroughSubject();
-            ISubject subject2 = new PassthroughSubject();
-            ISubject subject3 = new PassthroughSubject();
-
-            subject1.to(new Reduce("", new IPublisher[]{subject2, subject3}) {
-
+            result = "";
+            ISubject subj = new PassthroughSubject();
+            subj.to(new Reduce("") {
                 protected Object reduce(Object subresult, Object currentValue) {
-                    String result = (String) subresult;
-                    result = result + (String) currentValue;
-                    return result;
+                    return (String)subresult + currentValue;
                 }
             }).sink(new Sink() {
-
                 protected void onValue(Object value) {
-                    result = (String) value;
+                    result += (String)value;
                 }
-
                 protected void onCompletion(Completion completion) {
                     if (completion.isSuccess() && result.equals("123")) {
                         succeed();
@@ -259,14 +280,10 @@ public class Tests extends MIDlet {
                 }
             });
 
-            subject1.sendValue("1");
-            subject1.sendCompletion(new Completion(true));
-
-            subject2.sendValue("2");
-            subject3.sendValue("3");
-
-            subject3.sendCompletion(new Completion(true));
-            subject2.sendCompletion(new Completion(true));
+            subj.sendValue("1");
+            subj.sendValue("2");
+            subj.sendValue("3");
+            subj.sendCompletion(new Completion(true));
         }
     };
 
@@ -297,6 +314,81 @@ public class Tests extends MIDlet {
             subj.sendValue("2");
             subj.sendValue("3");
             subj.sendCompletion(new Completion(true));
+        }
+    };
+
+    private IPublisher testMergeReduce = new TestCase("MERGE+REDUCE") {
+        private String result = "";
+
+        protected void test() {
+            result = "";
+            ISubject subj1 = new PassthroughSubject();
+            ISubject subj2 = new PassthroughSubject();
+            ISubject subj3 = new PassthroughSubject();
+
+            subj1.to(new Merge(new IPublisher[]{subj2, subj3})).to(new Reduce("") {
+                protected Object reduce(Object subresult, Object currentValue) {
+                    return ((String) subresult) + currentValue;
+                }
+            })
+            .sink(new Sink() {
+                protected void onValue(Object value) {
+                    result += (String)value;
+                }
+                protected void onCompletion(Completion completion) {
+                    if (completion.isSuccess() && result.equals("123")) {
+                        succeed();
+                        return;
+                    }
+                    fail();
+                }
+            });
+
+            subj1.sendValue("1");
+            subj2.sendValue("2");
+            subj3.sendValue("3");
+
+            subj2.sendCompletion(new Completion(true));
+            subj3.sendCompletion(new Completion(true));
+            subj1.sendCompletion(new Completion(true));
+        }
+    };
+
+    private IPublisher testSequence = new TestCase("SEQUENCE") {
+
+        protected void test() {
+            Sequence s = new Sequence(new String[]{"1", "2", "3"});
+            s.sink(
+                    new Subscriber() {
+                
+                        Object[] result = new Object[3];
+                        int i = 0;
+
+                        public void receiveSubscription(ISubscription subscription) {
+                            super.receiveSubscription(subscription);
+                            subscription.requestValues(new Demand(1));
+                        }
+
+                        public Demand receiveInput(Object input) {
+                            onValue(input);
+                            return new Demand(1);
+                        }
+
+                        protected void onValue(Object value) {
+                            result[i] = ((Object[]) value)[0];
+                            i++;
+                        }
+
+                        protected void onCompletion(Completion completion) {
+                            String[] etalon = new String[]{"1", "2", "3"};
+                            if (completion.isSuccess() && S.arraysEqual(result, etalon)) {
+                                succeed();
+                                return;
+                            }
+                            fail();
+                        }
+                    }
+            );
         }
     };
 

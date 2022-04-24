@@ -3,12 +3,16 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.subjects;
 
+import ru.asolovyov.combime.publishers.Publisher;
 import java.util.Enumeration;
 import ru.asolovyov.combime.api.ISubject;
 import ru.asolovyov.combime.api.ISubscription;
-import ru.asolovyov.combime.utils.S;
+import ru.asolovyov.combime.common.Completion;
+import ru.asolovyov.combime.common.Demand;
+import ru.asolovyov.combime.common.S;
+import ru.asolovyov.combime.common.Subscription;
 
 /**
  *

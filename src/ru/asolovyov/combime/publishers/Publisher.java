@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.publishers;
 
 import java.util.Vector;
 import ru.asolovyov.combime.api.ISubscriber;
@@ -13,7 +13,9 @@ import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.api.ISubscriptionDelegate;
 import ru.asolovyov.combime.api.Identifiable;
-import ru.asolovyov.combime.utils.S;
+import ru.asolovyov.combime.common.Subscription;
+import ru.asolovyov.combime.common.S;
+import ru.asolovyov.combime.operators.Merge;
 
 /**
  *
@@ -61,5 +63,23 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
 
     public void subscriptionDidCancel(ISubscription subscription) {
         subscriptions.removeElement(subscription);
+    }
+
+    public static IPublisher merge(IPublisher[] publishers) {
+        if (publishers.length == 0) {
+            return null;
+        }
+
+        if (publishers.length == 1) {
+            return publishers[0];
+        }
+
+        IPublisher first = publishers[0];
+        IPublisher[] others = new IPublisher[publishers.length - 1];
+        for (int i = 1; i < publishers.length; i++) {
+            others[i - 1] = publishers[i];
+        }
+
+        return first.to(new Merge(others));
     }
 }

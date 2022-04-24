@@ -3,10 +3,12 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.utils;
+package ru.asolovyov.combime.operators;
 
 /**
  *
  * @author Администратор
  */
-public class Void {}
+public abstract class Map extends Operator {
+    public abstract Object mapValue(Object value);
+}

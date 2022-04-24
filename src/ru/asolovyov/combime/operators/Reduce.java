@@ -3,27 +3,28 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.operators;
+
+import ru.asolovyov.combime.common.Completion;
+import ru.asolovyov.combime.common.Demand;
 
 /**
  *
  * @author Администратор
  */
-public abstract class Scan extends Operator {
+public abstract class Reduce extends Operator {
     private Object result;
 
-    public Scan(Object initialResult) {
+    public Reduce(Object initialResult) {
         this.result = initialResult;
     }
 
-    protected abstract Object scan(Object subresult, Object currentValue);
+    protected abstract Object reduce(Object subresult, Object currentValue);
 
     public Demand receiveInput(Object input) {
         Object newValue = mapValue(input);
-        
-        result = scan(result, newValue);
-        sendValue(result);
-        
+
+        result = reduce(result, newValue);
         return Demand.UNLIMITED;
     }
 
@@ -32,7 +33,8 @@ public abstract class Scan extends Operator {
             sendCompletion(completion);
             return;
         }
-        
+
+        sendValue(result);
         sendCompletion(new Completion(true));
     }
 }

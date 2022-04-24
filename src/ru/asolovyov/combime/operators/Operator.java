@@ -3,13 +3,16 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.operators;
 
 import ru.asolovyov.combime.api.ICancellable;
 import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
-import ru.asolovyov.combime.utils.S;
+import ru.asolovyov.combime.common.Completion;
+import ru.asolovyov.combime.common.Demand;
+import ru.asolovyov.combime.subjects.PassthroughSubject;
+import ru.asolovyov.combime.common.S;
 
 /**
  *

@@ -2,12 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.common;
 
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.api.ISubscriptionDelegate;
-import ru.asolovyov.combime.utils.S;
 
 /**
  *
@@ -48,8 +47,6 @@ public class Subscription implements ISubscription {
     }
 
     public void sendValue(Object value) {
-//        hasNextValue = true;
-
         if (!mayEmitValue()) {
             return;
         }
@@ -58,16 +55,17 @@ public class Subscription implements ISubscription {
         Demand next = getSubscriber().receiveInput(value);
         getDemand().add(next);
 
-//        hasNextValue = false;
-
-//        if (mayComplete()) {
-//            Completion completion = emitCompletion();
-//            getSubscriber().receiveCompletion(completion);
-//            isCompleted = true;
-//        }
+        if (demand.getValue() > 0 && demand != Demand.UNLIMITED) {
+            delegate.subscriptionDidRequestValues(this, getDemand());
+        }
     }
 
     public void sendCompletion(Completion completion) {
+        if (isCompleted) {
+            return;
+        }
+        
+        isCompleted = true;
         getSubscriber().receiveCompletion(completion);
     }
 
@@ -80,9 +78,9 @@ public class Subscription implements ISubscription {
     }
 
     protected boolean mayEmitValue() {
-//        if (!hasNextValue || isCompleted) {
-//            return false;
-//        }
+        if (isCompleted) {
+            return false;
+        }
         if (subscriber == null) {
             return false;
         }
@@ -102,15 +100,4 @@ public class Subscription implements ISubscription {
     public void setDelegate(ISubscriptionDelegate delegate) {
         this.delegate = delegate;
     }
-
-//    protected boolean mayComplete() {
-//        if (subscriber == null || isCompleted) {
-//            return false;
-//        }
-//        return demand.getValue() == 0;
-//    }
-//
-//    protected Completion emitCompletion() {
-//        return new Completion(true, null);
-//    }
 }

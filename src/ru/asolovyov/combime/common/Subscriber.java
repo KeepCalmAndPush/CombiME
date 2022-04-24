@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.common;
 
 import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;

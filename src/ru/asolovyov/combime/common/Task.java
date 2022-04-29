@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ru.asolovyov.combime.utils;
+package ru.asolovyov.combime.common;
 
-import ru.asolovyov.combime.impl.PassthroughSubject;
+import ru.asolovyov.combime.subjects.PassthroughSubject;
 
 /**
  *

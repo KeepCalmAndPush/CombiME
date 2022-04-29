@@ -1,4 +1,4 @@
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.common;
 
 /**
  *

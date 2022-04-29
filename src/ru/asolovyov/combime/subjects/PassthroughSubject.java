@@ -3,12 +3,16 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.subjects;
 
+import ru.asolovyov.combime.publishers.Publisher;
 import java.util.Enumeration;
 import ru.asolovyov.combime.api.ISubject;
 import ru.asolovyov.combime.api.ISubscription;
-import ru.asolovyov.combime.utils.S;
+import ru.asolovyov.combime.common.Completion;
+import ru.asolovyov.combime.common.Demand;
+import ru.asolovyov.combime.common.S;
+import ru.asolovyov.combime.common.Subscription;
 
 /**
  *
@@ -33,7 +37,7 @@ public class PassthroughSubject extends Publisher implements ISubject {
             S.debug(this.getId() + " PTS Sending completion to " + element);
             element.sendCompletion(completion);
         }
-//        subscriptions.removeAllElements();
+        subscriptions.removeAllElements();
     }
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {

@@ -3,14 +3,12 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.impl;
+package ru.asolovyov.combime.subjects;
 
-import ru.asolovyov.combime.api.ICancellable;
-import ru.asolovyov.combime.api.IOperator;
-import ru.asolovyov.combime.api.IPublisher;
-import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
-import ru.asolovyov.combime.utils.S;
+import ru.asolovyov.combime.common.Completion;
+import ru.asolovyov.combime.common.Demand;
+import ru.asolovyov.combime.common.S;
 
 /**
  *
@@ -18,7 +16,7 @@ import ru.asolovyov.combime.utils.S;
  */
 public class CurrentValueSubject extends PassthroughSubject {
     private Object value;
-    private Exception failure;
+    private Completion completion;
 
     public CurrentValueSubject(Object currentValue) {
         this.value = currentValue;
@@ -31,7 +29,7 @@ public class CurrentValueSubject extends PassthroughSubject {
     }
 
     public void sendCompletion(Completion completion) {
-        failure = completion.getFailure();
+        this.completion = completion;
         super.sendCompletion(completion);
     }
 
@@ -41,9 +39,9 @@ public class CurrentValueSubject extends PassthroughSubject {
         if (value != null) {
             S.debug(this.getId() + " CVS subscription will receive value " + value);
             this.sendValue(value);
-        } else if (failure != null) {
-            S.debug(this.getId() + " CVS subscription will receive failure " + failure);
-            this.sendCompletion(new Completion(false, failure));
+        } else if (completion != null) {
+            S.debug(this.getId() + " CVS subscription will receive completion " + completion);
+            this.sendCompletion(completion);
         } else {
             S.debug(this.getId() + " CVS subscriptionDidRequest NOPE");
         }

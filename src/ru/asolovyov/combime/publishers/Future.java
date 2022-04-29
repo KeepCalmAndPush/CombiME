@@ -3,12 +3,13 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.utils;
+package ru.asolovyov.combime.publishers;
 
 import ru.asolovyov.combime.api.ICancellable;
 import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscriber;
+import ru.asolovyov.combime.common.Task;
 
 /**
  *

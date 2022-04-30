@@ -26,6 +26,8 @@ import ru.asolovyov.combime.operators.Map;
 import ru.asolovyov.combime.common.S;
 import ru.asolovyov.combime.common.Subscriber;
 import ru.asolovyov.combime.common.Task;
+import ru.asolovyov.combime.operators.CompactMap;
+import ru.asolovyov.combime.operators.TryMap;
 import ru.asolovyov.combime.publishers.Publisher;
 import ru.asolovyov.combime.publishers.Sequence;
 
@@ -35,14 +37,13 @@ import ru.asolovyov.combime.publishers.Sequence;
 public class Tests extends MIDlet {
     private Display display;
     private Form form = new Form("CombiME-Test");
-    private IPublisher merge;
-    private ICancellable canc;
 
     public void startApp() {
         display = Display.getDisplay(this);
         display.setCurrent(form);
 
         S.log("TESTS STARTED");
+        form.append("TESTS STARTED");
 
         IPublisher tests[] = {
             this.testJust,
@@ -54,11 +55,12 @@ public class Tests extends MIDlet {
             this.testScan,
             this.testMergeReduce,
             this.testSequence,
-            this.testMap
+            this.testMap,
+            this.testCompactMap,
+            this.testTryMap
         };
-
-        merge = Publisher.merge(tests);
-        canc = merge.sink(new Sink() {
+        
+        Publisher.merge(tests).sink(new Sink() {
             protected void onValue(Object value) {
                 S.log(value);
                 form.append(value + "\n");
@@ -66,6 +68,7 @@ public class Tests extends MIDlet {
 
             protected void onCompletion(Completion completion) {
                 S.log("LE FIN!");
+                form.append("LE FIN!");
             }
         });
     }
@@ -158,11 +161,7 @@ public class Tests extends MIDlet {
                 }
 
                 protected void onCompletion(Completion completion) {
-                    if (completion.isSuccess() && result.equals("!AA!")) {
-                        succeed();
-                        return;
-                    }
-                    fail();
+                    assertEqual("!AA!", result);
                 }
             });
             m.receiveInput("a");
@@ -203,11 +202,7 @@ public class Tests extends MIDlet {
 
         future.to(map1).to(map2).sink(new Sink() {
                 protected void onValue(Object value) {
-                    if (value.equals("1hello2")) {
-                        succeed();
-                        return;
-                    }
-                    fail();
+                    assertEqual("1hello2", value);
                 }
         });
         }
@@ -265,11 +260,7 @@ public class Tests extends MIDlet {
                     result += (String)value;
                 }
                 protected void onCompletion(Completion completion) {
-                    if (completion.isSuccess() && result.equals("123")) {
-                        succeed();
-                        return;
-                    }
-                    fail();
+                    assertEqual("123", result);
                 }
             });
 
@@ -295,11 +286,7 @@ public class Tests extends MIDlet {
                     result += (String)value;
                 }
                 protected void onCompletion(Completion completion) {
-                    if (completion.isSuccess() && result.equals("112123")) {
-                        succeed();
-                        return;
-                    }
-                    fail();
+                   assertEqual("112123", result);
                 }
             });
 
@@ -329,11 +316,7 @@ public class Tests extends MIDlet {
                     result += (String)value;
                 }
                 protected void onCompletion(Completion completion) {
-                    if (completion.isSuccess() && result.equals("123")) {
-                        succeed();
-                        return;
-                    }
-                    fail();
+                    assertEqual("123", result);
                 }
             });
 
@@ -348,15 +331,12 @@ public class Tests extends MIDlet {
     };
 
     private IPublisher testSequence = new TestCase("SEQUENCE") {
-
+        String res = "";
+                        
         protected void test() {
             Sequence s = new Sequence(new String[]{"1", "2", "3"});
             s.sink(
                     new Subscriber() {
-                
-                        Object[] result = new Object[3];
-                        int i = 0;
-
                         public void receiveSubscription(ISubscription subscription) {
                             super.receiveSubscription(subscription);
                             subscription.requestValues(new Demand(1));
@@ -368,20 +348,55 @@ public class Tests extends MIDlet {
                         }
 
                         protected void onValue(Object value) {
-                            result[i] = ((Object[]) value)[0];
-                            i++;
+                            res += value;
                         }
 
                         protected void onCompletion(Completion completion) {
-                            String[] etalon = new String[]{"1", "2", "3"};
-                            if (completion.isSuccess() && S.arraysEqual(result, etalon)) {
-                                succeed();
-                                return;
-                            }
-                            fail();
+                            assertEqual(res, "123");
                         }
                     }
             );
+        }
+    };
+
+    private IPublisher testCompactMap = new TestCase("COMPACT MAP") {
+        String result = "";
+        protected void test() {
+            (new Sequence(new Object[]{"1", null, "2", null, "3"}))
+                    .to(new CompactMap())
+                    .sink(new Sink() {
+
+                protected void onValue(Object value) {
+                    result += value;
+                }
+
+                protected void onCompletion(Completion completion) {
+                    assertEqual("123", result);
+                }
+            });
+        }
+    };
+
+
+    private IPublisher testTryMap = new TestCase("TRY MAP") {
+        protected void test() {
+            (new Just("0")).to(new TryMap() {
+                public Object mapValue(Object value) {
+                    return ((Object[]) value)[0];
+                }
+            }).sink(new Sink() {
+                protected void onValue(Object value) {
+                    fail();
+                }
+
+                protected void onCompletion(Completion completion) {
+                    if (completion.isSuccess() || completion.getFailure() == null) {
+                        fail();
+                        return;
+                    }
+                    succeed();
+                }
+            });
         }
     };
 

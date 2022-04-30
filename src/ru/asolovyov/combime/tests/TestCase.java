@@ -12,6 +12,7 @@ import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
+import ru.asolovyov.combime.common.S;
 import ru.asolovyov.combime.common.Subscription;
 import ru.asolovyov.combime.publishers.Publisher;
 
@@ -54,6 +55,15 @@ public abstract class TestCase extends Publisher {
         sendCompletion(new Completion(false));
     }
 
+    public void assertEqual(Object expected, Object got) {
+        if (expected.equals(got)) {
+            succeed();
+            return;
+        }
+        
+        fail("Expected \"" + expected + "\", got \"" + got + "\"");
+    }
+
     protected abstract void test();
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
@@ -61,6 +71,7 @@ public abstract class TestCase extends Publisher {
             return;
         }
         hasRun = true;
+        S.debug("TEST " + name + " STARTED");
         test();
     }
 

@@ -6,7 +6,6 @@
 package ru.asolovyov.combime.publishers;
 
 import java.util.Hashtable;
-import java.util.Vector;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
@@ -29,7 +28,9 @@ public class Sequence extends Publisher {
         long count = demand.getValue();
         Subscription sub = ((Subscription)subscription);
         if (demand == Demand.UNLIMITED || demand.getValue() >= sequence.length) {
-            sub.sendValue(sequence);
+            for(int i = 0; i < sequence.length; i++) {
+                sub.sendValue(sequence[i]);
+            }
             sub.sendCompletion(new Completion(true));
             return;
         }
@@ -47,16 +48,12 @@ public class Sequence extends Publisher {
         }
 
         int chunkLength = (int)Math.min(count, sequence.length - i);
-
-        Object chunk[] = new Object[chunkLength];
+        servings.put(key, new Integer(i + chunkLength));
         int j = 0;
 
         while (j < chunkLength) {
-            chunk[j] = sequence[i + j];
+            sub.sendValue(sequence[i + j]);
             j++;
         }
-
-        servings.put(key, new Integer(i + j));
-        sub.sendValue(chunk);
     }
 }

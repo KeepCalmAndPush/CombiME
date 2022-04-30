@@ -5,11 +5,37 @@
 
 package ru.asolovyov.combime.common;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
 /**
  *
  * @author Администратор
  */
 public class S {
+    public static abstract class ForEach {
+        public ForEach(Object[] array) {
+            for (int i = 0; i < array.length; i++) {
+                with(array[i]);
+            }
+        }
+
+        public ForEach(Vector vector) {
+            Enumeration elements = vector.elements();
+            while (elements.hasMoreElements()) {
+                Object element = elements.nextElement();
+                with(element);
+            }
+        }
+
+        protected abstract void with(Object item);
+    }
+
+    public static void logk(Object s) {
+        System.out.print(s);
+    }
+
     public static void log(Object s) {
         System.out.println(s);
     }

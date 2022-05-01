@@ -27,6 +27,7 @@ import ru.asolovyov.combime.common.S;
 import ru.asolovyov.combime.common.Subscriber;
 import ru.asolovyov.combime.common.Task;
 import ru.asolovyov.combime.operators.CompactMap;
+import ru.asolovyov.combime.operators.FlatMap;
 import ru.asolovyov.combime.operators.TryMap;
 import ru.asolovyov.combime.publishers.Publisher;
 import ru.asolovyov.combime.publishers.Sequence;
@@ -57,7 +58,8 @@ public class Tests extends MIDlet {
             this.testSequence,
             this.testMap,
             this.testCompactMap,
-            this.testTryMap
+            this.testTryMap,
+            this.testFlatMap()
         };
         
         Publisher.merge(tests).sink(new Sink() {
@@ -399,6 +401,34 @@ public class Tests extends MIDlet {
             });
         }
     };
+    
+    private IPublisher testFlatMap() {
+        return new TestCase("FLAT MAP") {
+            String result = "";
+            protected void test() {
+                new Sequence(new Integer[]{new Integer(1), new Integer(2), new Integer(3)})
+                        .to(new FlatMap() {
+                    protected IPublisher flatMap(Object value) {
+                        int i = ((Integer)value).intValue();
+                        if (i % 2 == 0) {
+                            return new Just(i + "" + i);
+                        }
+                        return new Just("" + i);
+                    }
+                })
+                        .sink(new Sink() {
+
+                    protected void onValue(Object value) {
+                        result += value;
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual("1223", result);
+                    }
+                });
+            }
+        };
+    }
 
     protected void destroyApp(boolean unconditional) throws MIDletStateChangeException {
     }

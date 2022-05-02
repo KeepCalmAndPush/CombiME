@@ -13,7 +13,6 @@ import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.subjects.CurrentValueSubject;
 import ru.asolovyov.combime.common.Demand;
-import ru.asolovyov.combime.publishers.Publisher;
 import ru.asolovyov.combime.common.Sink;
 import ru.asolovyov.combime.common.S;
 import ru.asolovyov.combime.common.Task;

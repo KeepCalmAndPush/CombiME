@@ -12,11 +12,7 @@ import ru.asolovyov.combime.common.Demand;
  *
  * @author Администратор
  */
-public abstract class TryScan extends Scan {
-    public TryScan(Object initialResult) {
-        super(initialResult);
-    }
-
+public abstract class TryFilter extends Filter {
     public Demand receiveInput(Object input) {
         try {
             return super.receiveInput(input);

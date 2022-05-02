@@ -13,7 +13,7 @@ import ru.asolovyov.combime.common.Demand;
  * @author Администратор
  */
 public abstract class Reduce extends Operator {
-    private Object result;
+    protected Object result;
 
     public Reduce(Object initialResult) {
         this.result = initialResult;

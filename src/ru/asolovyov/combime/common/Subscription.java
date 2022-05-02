@@ -19,6 +19,9 @@ public class Subscription implements ISubscription {
     private Demand demand;
     private ISubscriptionDelegate delegate;
 
+    private boolean isCompleted = false;
+    private boolean isCancelled = false;
+
     { generateId(); }
 
     public Subscription(ISubscriber subscriber) {
@@ -34,11 +37,9 @@ public class Subscription implements ISubscription {
     }
 
     public void cancel() {
-        subscriber = null;
+        this.delegate.subscriptionDidCancel(this);
+        isCancelled = true;
     }
-
-    protected boolean hasNextValue = false;
-    private boolean isCompleted = false;
 
     public void requestValues(Demand demand) {
         this.demand = demand;
@@ -67,6 +68,7 @@ public class Subscription implements ISubscription {
         
         isCompleted = true;
         getSubscriber().receiveCompletion(completion);
+        delegate.subscriptionDidCancel(this);
     }
 
     public ISubscriber getSubscriber() {
@@ -78,10 +80,7 @@ public class Subscription implements ISubscription {
     }
 
     protected boolean mayEmitValue() {
-        if (isCompleted) {
-            return false;
-        }
-        if (subscriber == null) {
+        if (isCompleted || isCancelled) {
             return false;
         }
         if (getDemand() == null) {

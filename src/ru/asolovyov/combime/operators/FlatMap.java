@@ -5,11 +5,7 @@
 
 package ru.asolovyov.combime.operators;
 
-import ru.asolovyov.combime.api.ICancellable;
-import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
-import ru.asolovyov.combime.api.ISubscriber;
-import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
 import ru.asolovyov.combime.common.Sink;
@@ -34,4 +30,6 @@ public abstract class FlatMap extends Operator {
         });
         return Demand.UNLIMITED;
     }
+
+    public void receiveCompletion(Completion completion) { }
 }

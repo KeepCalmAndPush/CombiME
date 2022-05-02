@@ -6,7 +6,6 @@
 package ru.asolovyov.combime.common;
 
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -32,19 +31,19 @@ public class S {
         protected abstract void with(Object item);
     }
 
-    public static void logk(Object s) {
+    public static void print(Object s) {
         System.out.print(s);
     }
 
-    public static void log(Object s) {
+    public static void println(Object s) {
         System.out.println(s);
     }
 
     public static void debug(Object s) {
-//        System.out.println(s)
+//        System.out.print(s)
     }
 
-    public static void sleep(int millis) {
+    public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
         } catch (Exception ex) {
@@ -68,10 +67,18 @@ public class S {
     }
 
     public static void printArr(Object[] arr1) {
-        S.log("Printing array: " + arr1);
+        S.println("Printing array: " + arr1);
         int length = arr1.length;
         for (int i = 0; i < length; i++) {
-            S.log(arr1[i]);
+            S.println(arr1[i]);
         }
+    }
+
+    public static Integer[] boxed(int[] primitives) {
+        Integer[] boxed = new Integer[primitives.length];
+        for (int i = 0; i < primitives.length; i++) {
+            boxed[i] = new Integer(primitives[i]);
+        }
+        return boxed;
     }
 }

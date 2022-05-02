@@ -12,8 +12,8 @@ import ru.asolovyov.combime.common.Demand;
  *
  * @author Администратор
  */
-public abstract class TryScan extends Scan {
-    public TryScan(Object initialResult) {
+public abstract class TryReduce extends Reduce {
+    public TryReduce(Object initialResult) {
         super(initialResult);
     }
 

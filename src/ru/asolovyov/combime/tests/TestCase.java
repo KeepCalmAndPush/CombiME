@@ -5,10 +5,6 @@
 package ru.asolovyov.combime.tests;
 
 import java.util.Enumeration;
-import ru.asolovyov.combime.api.ICancellable;
-import ru.asolovyov.combime.api.IOperator;
-import ru.asolovyov.combime.api.IPublisher;
-import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
@@ -21,6 +17,24 @@ import ru.asolovyov.combime.publishers.Publisher;
  * @author Администратор
  */
 public abstract class TestCase extends Publisher {
+    public final class Result {
+        private String message;
+        private boolean passed;
+
+        public Result(String message, boolean passed) {
+            this.message = message;
+            this.passed = passed;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+        
+        public boolean passed() {
+            return passed;
+        }
+    }
+
     private String name;
     private boolean hasRun = false;
 
@@ -29,20 +43,20 @@ public abstract class TestCase extends Publisher {
         this.name = name;
     }
 
-    public void succeed() {
-        succeed(null);
+    public void pass() {
+        pass(null);
     }
 
     public void fail() {
         fail(null);
     }
 
-    public void succeed(String nullableComment) {
+    public void pass(String nullableComment) {
         String result = "TEST " + name + " OK";
         if (nullableComment != null) {
             result += ": " + nullableComment;
         }
-        sendValue(result);
+        sendValue(new Result(result, true));
         sendCompletion(new Completion(true));
     }
 
@@ -51,17 +65,28 @@ public abstract class TestCase extends Publisher {
         if (nullableReason != null) {
             result += ": " + nullableReason;
         }
-        sendValue(result);
-        sendCompletion(new Completion(false));
+        sendValue(new Result(result, false));
+        sendCompletion(new Completion(true));
     }
 
     public void assertEqual(Object expected, Object got) {
-        if (expected.equals(got)) {
-            succeed();
+        if (expected == got) {
+            return;
+        }
+        
+        if (expected != null && expected.equals(got)) {
             return;
         }
         
         fail("Expected \"" + expected + "\", got \"" + got + "\"");
+    }
+
+    public void assertEqual(boolean b1, boolean b2) {
+        if (b1 == b2) {
+            return;
+        }
+
+        fail("Expected \"" + b1 + "\", got \"" + b2 + "\"");
     }
 
     protected abstract void test();

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.operators;
+package ru.asolovyov.combime.operators.mapping;
 
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
@@ -12,11 +12,7 @@ import ru.asolovyov.combime.common.Demand;
  *
  * @author Администратор
  */
-public abstract class TryScan extends Scan {
-    public TryScan(Object initialResult) {
-        super(initialResult);
-    }
-
+public abstract class TryMap extends Map {
     public Demand receiveInput(Object input) {
         try {
             return super.receiveInput(input);

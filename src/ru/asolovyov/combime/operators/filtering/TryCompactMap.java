@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.operators;
+package ru.asolovyov.combime.operators.filtering;
 
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
@@ -12,7 +12,7 @@ import ru.asolovyov.combime.common.Demand;
  *
  * @author Администратор
  */
-public abstract class TryRemoveDuplicates extends RemoveDuplicates {
+public class TryCompactMap extends CompactMap {
     public Demand receiveInput(Object input) {
         try {
             return super.receiveInput(input);

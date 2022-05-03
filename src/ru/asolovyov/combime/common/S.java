@@ -13,6 +13,21 @@ import java.util.Vector;
  * @author Администратор
  */
 public class S {
+    public static abstract class Delay {
+        Thread thread;
+        public Delay(final long millis) {
+            thread = new Thread(new Runnable() {
+                public void run() {
+                    S.sleep(millis);
+                    work();
+                }
+            });
+            thread.start();
+        }
+
+        protected abstract void work();
+    }
+
     public static abstract class ForEach {
         public ForEach(Object[] array) {
             for (int i = 0; i < array.length; i++) {
@@ -64,6 +79,17 @@ public class S {
         }
 
         return true;
+    }
+
+    public static String arrayToString(Object[] arr1) {
+        StringBuffer result = new StringBuffer();
+
+        int length = arr1.length;
+        for (int i = 0; i < length; i++) {
+            result.append(arr1[i]);
+        }
+
+        return result.toString();
     }
 
     public static void printArr(Object[] arr1) {

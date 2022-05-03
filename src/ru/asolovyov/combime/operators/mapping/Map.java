@@ -3,7 +3,9 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.operators;
+package ru.asolovyov.combime.operators.mapping;
+
+import ru.asolovyov.combime.operators.Operator;
 
 /**
  *

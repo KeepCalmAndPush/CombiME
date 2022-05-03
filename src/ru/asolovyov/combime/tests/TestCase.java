@@ -89,6 +89,14 @@ public abstract class TestCase extends Publisher {
         fail("Expected \"" + b1 + "\", got \"" + b2 + "\"");
     }
 
+    public void assertEqual(int i1, int i2) {
+        if (i1 == i2) {
+            return;
+        }
+
+        fail("Expected \"" + i1 + "\", got \"" + i2 + "\"");
+    }
+
     protected abstract void test();
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {

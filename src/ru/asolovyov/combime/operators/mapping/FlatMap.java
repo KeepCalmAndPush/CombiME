@@ -3,12 +3,13 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.operators;
+package ru.asolovyov.combime.operators.mapping;
 
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
 import ru.asolovyov.combime.common.Sink;
+import ru.asolovyov.combime.operators.Operator;
 
 /**
  *

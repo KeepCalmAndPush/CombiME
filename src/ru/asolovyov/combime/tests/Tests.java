@@ -15,31 +15,39 @@ import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
 import ru.asolovyov.combime.operators.Merge;
 import ru.asolovyov.combime.subjects.PassthroughSubject;
-import ru.asolovyov.combime.operators.Reduce;
-import ru.asolovyov.combime.operators.Scan;
+import ru.asolovyov.combime.operators.reducing.Reduce;
+import ru.asolovyov.combime.operators.mapping.Scan;
 import ru.asolovyov.combime.common.Sink;
 import ru.asolovyov.combime.publishers.Empty;
 import ru.asolovyov.combime.publishers.Fail;
 import ru.asolovyov.combime.publishers.Future;
 import ru.asolovyov.combime.publishers.Just;
-import ru.asolovyov.combime.operators.Map;
+import ru.asolovyov.combime.operators.mapping.Map;
 import ru.asolovyov.combime.common.S;
 import ru.asolovyov.combime.common.Subscriber;
 import ru.asolovyov.combime.common.Task;
-import ru.asolovyov.combime.operators.Collect;
-import ru.asolovyov.combime.operators.CompactMap;
+import ru.asolovyov.combime.operators.reducing.Collect;
+import ru.asolovyov.combime.operators.filtering.CompactMap;
 import ru.asolovyov.combime.operators.Delay;
-import ru.asolovyov.combime.operators.Filter;
-import ru.asolovyov.combime.operators.FlatMap;
-import ru.asolovyov.combime.operators.IgnoreOutput;
-import ru.asolovyov.combime.operators.RemoveDuplicates;
-import ru.asolovyov.combime.operators.ReplaceEmpty;
-import ru.asolovyov.combime.operators.ReplaceError;
-import ru.asolovyov.combime.operators.TryCompactMap;
-import ru.asolovyov.combime.operators.TryFilter;
-import ru.asolovyov.combime.operators.TryMap;
-import ru.asolovyov.combime.operators.TryReduce;
-import ru.asolovyov.combime.operators.TryRemoveDuplicates;
+import ru.asolovyov.combime.operators.filtering.Filter;
+import ru.asolovyov.combime.operators.mapping.FlatMap;
+import ru.asolovyov.combime.operators.reducing.IgnoreOutput;
+import ru.asolovyov.combime.operators.filtering.RemoveDuplicates;
+import ru.asolovyov.combime.operators.filtering.ReplaceEmpty;
+import ru.asolovyov.combime.operators.filtering.ReplaceError;
+import ru.asolovyov.combime.operators.filtering.TryCompactMap;
+import ru.asolovyov.combime.operators.filtering.TryFilter;
+import ru.asolovyov.combime.operators.mapping.TryMap;
+import ru.asolovyov.combime.operators.reducing.TryReduce;
+import ru.asolovyov.combime.operators.filtering.TryRemoveDuplicates;
+import ru.asolovyov.combime.operators.matching.AllSatisfy;
+import ru.asolovyov.combime.operators.matching.Contains;
+import ru.asolovyov.combime.operators.matching.ContainsWhere;
+import ru.asolovyov.combime.operators.math.Count;
+import ru.asolovyov.combime.operators.math.Max;
+import ru.asolovyov.combime.operators.math.Min;
+import ru.asolovyov.combime.operators.math.TryMax;
+import ru.asolovyov.combime.operators.math.TryMin;
 import ru.asolovyov.combime.publishers.Publisher;
 import ru.asolovyov.combime.publishers.Sequence;
 
@@ -82,7 +90,17 @@ public class Tests extends MIDlet {
             this.testTryRemoveDuplicates(),
             this.testTryReduce(),
             this.testIgnoreOutput(),
-            this.testCollect()
+            this.testCollectByCount(),
+            this.testCollectByTime(),
+            this.testCollectByTimeOrCount(),
+            this.testMax(),
+            this.testMin(),
+            this.testTryMin(),
+            this.testTryMax(),
+            this.testCount(),
+            this.testContains(),
+            this.testContainsWhere(),
+            this.testAllSatisfy()
         };
 
         Publisher.merge(tests).sink(new Sink() {
@@ -832,12 +850,12 @@ public class Tests extends MIDlet {
         };
     }
 
-    private IPublisher testCollect() {
-        return new TestCase("COLLECT") {
+    private IPublisher testCollectByCount() {
+        return new TestCase("COLLECT BY COUNT") {
             int i = 0;
             protected void test() {
                 (new Sequence(new String[]{"1", "2", "3", "4", "5", "6", "7"}))
-                        .to(new Collect(3))
+                        .to(new Collect((int)3))
                         .sink(new Sink() {
 
                     protected void onValue(Object value) {
@@ -856,6 +874,331 @@ public class Tests extends MIDlet {
                     protected void onCompletion(Completion completion) {
                         assertEqual(true, completion.isSuccess());
                         assertEqual(null, completion.getFailure());
+                        pass();
+                    }
+                });
+            }
+        };
+    }
+
+        private IPublisher testCollectByTime() {
+        return new TestCase("COLLECT BY TIME") {
+            int i = 0;
+            String result = "";
+            Thread t1;
+            Thread t2;
+            ISubject pts = new PassthroughSubject();
+
+            protected void test() {
+                pts
+                        .to(new Collect((long) 300))
+                        .sink(new Sink() {
+                    protected void onValue(Object value) {
+                        result += S.arrayToString((Object[]) value) + "+";
+                    }
+                });
+
+                t1 = new Thread(new Runnable() {
+                    public void run() {
+                        pts.sendValue("1");
+                        S.sleep(101);
+                        pts.sendValue("2");
+                        S.sleep(101);
+                        pts.sendValue("3");
+                        S.sleep(101);
+                        pts.sendValue("4");
+                        S.sleep(101);
+                        pts.sendValue("5");
+                        S.sleep(101);
+                        pts.sendValue("6");
+                        S.sleep(101);
+                        pts.sendValue("7");
+                        S.sleep(101);
+                        pts.sendCompletion(new Completion(true));
+                    }
+                });
+                t1.start();
+
+                new S.Delay(1000) {
+                    protected void work() {
+                        assertEqual("123+456+7+", result);
+                        pass();
+                    }
+                };
+            }
+        };
+    }
+
+    private IPublisher testCollectByTimeOrCount() {
+        return new TestCase("COLLECT BY TIME OR COUNT") {
+            int i = 0;
+            String result = "";
+            Thread t1;
+            Thread t2;
+            ISubject pts = new PassthroughSubject();
+
+            protected void test() {
+                pts
+                        .to(new Collect((long) 300, 4))
+                        .sink(new Sink() {
+                    protected void onValue(Object value) {
+                        result += S.arrayToString((Object[]) value) + "+";
+                    }
+                });
+
+                t1 = new Thread(new Runnable() {
+                    public void run() {
+                        pts.sendValue("1");
+                        S.sleep(101);
+                        pts.sendValue("2");
+                        S.sleep(101);
+                        pts.sendValue("3");
+                        S.sleep(101);
+                        pts.sendValue("4");
+                        S.sleep(10);
+                        pts.sendValue("5");
+                        S.sleep(10);
+                        pts.sendValue("6");
+                        S.sleep(10);
+                        pts.sendValue("7");
+                        S.sleep(10);
+                        pts.sendValue("8");
+                        S.sleep(10);
+                        pts.sendValue("9");
+                        S.sleep(10);
+                        pts.sendCompletion(new Completion(true));
+                    }
+                });
+                t1.start();
+
+                new S.Delay(1000) {
+                    protected void work() {
+                        assertEqual("123+4567+89+", result);
+                        pass();
+                    }
+                };
+            }
+        };
+    }
+
+    private IPublisher testMin() {
+        return new TestCase("MIN") {
+            protected void test() {
+                (new Sequence(S.boxed(new int[]{5, 2, 4, 1, 3})))
+                        .to(new Min() {
+
+                    protected boolean isNewValueLess(Object currentMin, Object newValue) {
+                        int c = ((Integer)currentMin).intValue();
+                        int n = ((Integer)newValue).intValue();
+
+                        return n < c;
+                    }
+                })
+                        .sink(new Sink() {
+
+                    protected void onValue(Object value) {
+                        assertEqual(new Integer(1), value);
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        pass();
+                    }
+                });
+            }
+        };
+    }
+
+    private IPublisher testMax() {
+        return new TestCase("MAX") {
+            protected void test() {
+                (new Sequence(S.boxed(new int[]{4, 2, 5, 1, 3})))
+                        .to(new Max() {
+
+                    protected boolean isNewValueGreater(Object currentMax, Object newValue) {
+                        int c = ((Integer)currentMax).intValue();
+                        int n = ((Integer)newValue).intValue();
+                        return n > c;
+                    }
+                })
+                        .sink(new Sink() {
+
+                    protected void onValue(Object value) {
+                        assertEqual(new Integer(5), value);
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        pass();
+                    }
+                });
+            }
+        };
+    }
+
+        private IPublisher testTryMin() {
+        return new TestCase("TRY MIN") {
+            protected void test() {
+                (new Sequence(S.boxed(new int[]{5, 2, 4, 1, 3})))
+                        .to(new TryMin() {
+
+                    protected boolean isNewValueLess(Object currentMin, Object newValue) {
+                        int c = ((Integer)currentMin).intValue();
+                        int n = ((Integer)newValue).intValue();
+
+                        if (n == 1) {
+                            n = 1 / 0;
+                        }
+
+                        return n < c;
+                    }
+                })
+                        .sink(new Sink() {
+
+                    protected void onValue(Object value) {
+                        fail();
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(false, completion.isSuccess());
+                        assertEqual(false, completion.getFailure() == null);
+                        pass();
+                    }
+                });
+            }
+        };
+    }
+
+    private IPublisher testTryMax() {
+        return new TestCase("TRY MAX") {
+            protected void test() {
+                (new Sequence(S.boxed(new int[]{4, 2, 5, 1, 3})))
+                        .to(new TryMax() {
+
+                    protected boolean isNewValueGreater(Object currentMax, Object newValue) {
+                        int c = ((Integer)currentMax).intValue();
+                        int n = ((Integer)newValue).intValue();
+
+                        if (n == 1) {
+                            n = 1 / 0;
+                        }
+
+                        return n > c;
+                    }
+                })
+                        .sink(new Sink() {
+
+                    protected void onValue(Object value) {
+                        fail();
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(false, completion.isSuccess());
+                        assertEqual(false, completion.getFailure() == null);
+                        pass();
+                    }
+                });
+            }
+        };
+    }
+
+    private IPublisher testCount() {
+        return new TestCase("COUNT") {
+            protected void test() {
+                (new Sequence(S.boxed(new int[]{4, 2, 5, 1, 0, 3})))
+                        .to(new Count())
+                        .sink(new Sink() {
+
+                    protected void onValue(Object value) {
+                        assertEqual(new Integer(6), value);
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        pass();
+                    }
+                });
+            }
+        };
+    }
+
+    private IPublisher testContains() {
+        return new TestCase("CONTAINS") {
+            int count = 0;
+            protected void test() {
+                (new Sequence(S.boxed(new int[]{4, 2, 5, 1, 0, 3})))
+                        .to(new Contains(new Integer(1)))
+                        .sink(new Sink() {
+
+                    protected void onValue(Object value) {
+                        count++;
+                        assertEqual(true, ((Boolean)value).booleanValue());
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        assertEqual(1, count);
+                        pass();
+                    }
+                });
+            }
+        };
+    }
+
+
+    private IPublisher testContainsWhere() {
+        return new TestCase("CONTAINS WHERE") {
+            int count = 0;
+            protected void test() {
+                (new Sequence(S.boxed(new int[]{4, 2, 5, 1, 0, -4, 3})))
+                        .to(new ContainsWhere() {
+                    protected boolean doesSatisfy(Object obj) {
+                        return ((Integer)obj).intValue() < 0;
+                    }
+                })
+                        .sink(new Sink() {
+
+                    protected void onValue(Object value) {
+                        count++;
+                        assertEqual(true, ((Boolean)value).booleanValue());
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        assertEqual(1, count);
+                        pass();
+                    }
+                });
+            }
+        };
+    }
+
+     private IPublisher testAllSatisfy() {
+        return new TestCase("ALL SATISFY") {
+            int count = 0;
+            protected void test() {
+                (new Sequence(S.boxed(new int[]{4, 2, 5, -1, 0, 3})))
+                        .to(new AllSatisfy() {
+                    protected boolean doesSatisfy(Object obj) {
+                        return ((Integer)obj).intValue() >= 0;
+                    }
+                })
+                        .sink(new Sink() {
+
+                    protected void onValue(Object value) {
+                        count++;
+                        assertEqual(false, ((Boolean)value).booleanValue());
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        assertEqual(1, count);
                         pass();
                     }
                 });

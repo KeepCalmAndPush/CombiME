@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.operators;
+package ru.asolovyov.combime.operators.reducing;
 
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
@@ -12,7 +12,11 @@ import ru.asolovyov.combime.common.Demand;
  *
  * @author Администратор
  */
-public class TryCompactMap extends CompactMap {
+public abstract class TryReduce extends Reduce {
+    public TryReduce(Object initialResult) {
+        super(initialResult);
+    }
+
     public Demand receiveInput(Object input) {
         try {
             return super.receiveInput(input);

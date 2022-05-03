@@ -3,9 +3,10 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.operators;
+package ru.asolovyov.combime.operators.reducing;
 
 import ru.asolovyov.combime.common.Demand;
+import ru.asolovyov.combime.operators.Operator;
 
 /**
  *

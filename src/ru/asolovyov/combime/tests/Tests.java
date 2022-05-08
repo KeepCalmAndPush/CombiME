@@ -13,7 +13,7 @@ import ru.asolovyov.combime.api.ISubject;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
-import ru.asolovyov.combime.operators.Merge;
+import ru.asolovyov.combime.operators.combining.Merge;
 import ru.asolovyov.combime.subjects.PassthroughSubject;
 import ru.asolovyov.combime.operators.reducing.Reduce;
 import ru.asolovyov.combime.operators.mapping.Scan;
@@ -29,6 +29,8 @@ import ru.asolovyov.combime.common.Task;
 import ru.asolovyov.combime.operators.reducing.Collect;
 import ru.asolovyov.combime.operators.filtering.CompactMap;
 import ru.asolovyov.combime.operators.Delay;
+import ru.asolovyov.combime.operators.combining.CombineLatest;
+import ru.asolovyov.combime.operators.combining.Zip;
 import ru.asolovyov.combime.operators.filtering.Filter;
 import ru.asolovyov.combime.operators.mapping.FlatMap;
 import ru.asolovyov.combime.operators.reducing.IgnoreOutput;
@@ -100,11 +102,12 @@ public class Tests extends MIDlet {
             this.testCount(),
             this.testContains(),
             this.testContainsWhere(),
-            this.testAllSatisfy()
+            this.testAllSatisfy(),
+            this.testCombineLatest(),
+            this.testZip()
         };
-
+        
         Publisher.merge(tests).sink(new Sink() {
-
             protected void onValue(Object value) {
                 TestCase.Result result = (TestCase.Result) value;
                 String message = result.getMessage();
@@ -1205,6 +1208,113 @@ public class Tests extends MIDlet {
             }
         };
     }
+
+     private IPublisher testCombineLatest() {
+         return new TestCase("COMBINE LATEST") {
+             Object[] test = new Object[]{
+                 new Object[]{"1", null, null},
+                 new Object[]{"1", "2", null},
+                 new Object[]{"1", "2", "3"},
+                 new Object[]{"1", "2", "4"},
+                 new Object[]{"1", "5", "4"},
+                 new Object[]{"6", "5", "4"},
+             };
+             int i = 0;
+             Thread t;
+             
+            protected void test() {
+                final ISubject pub1 = new PassthroughSubject();
+                final ISubject pub2 = new PassthroughSubject();
+                final ISubject pub3 = new PassthroughSubject();
+
+                (new CombineLatest(new IPublisher[]{pub1, pub2, pub3})).sink(new Sink() {
+                    protected void onValue(Object value) {
+                        Object[] ti = (Object[])test[i];
+                        assertEqual(true, S.arraysEqual((Object[]) value,ti));
+                        i++;
+                    }
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(6, i);
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        pass();
+                    }
+                });
+
+                t = new Thread(new Runnable() {
+                    public void run() {
+                        S.sleep(100);
+                        pub1.sendValue("1"); S.sleep(140);
+                        pub2.sendValue("2"); S.sleep(20);
+                        pub3.sendValue("3"); S.sleep(30);
+                        pub3.sendValue("4"); S.sleep(90);
+                        pub2.sendValue("5"); S.sleep(150);
+                        pub1.sendValue("6"); S.sleep(100);
+
+                        pub2.sendCompletion(new Completion(true));
+                        pub1.sendCompletion(new Completion(true));
+                        pub3.sendCompletion(new Completion(true));
+                    }
+                });
+
+                t.start();
+            }
+        };
+     }
+
+     private IPublisher testZip() {
+         return new TestCase("ZIP") {
+             Object[] test = new Object[]{
+                 new Object[]{"1", "2", "3"},
+                 new Object[]{"6", "5", "4"},
+             };
+             int i = 0;
+             Thread t;
+
+            protected void test() {
+                final ISubject pub1 = new PassthroughSubject();
+                final ISubject pub2 = new PassthroughSubject();
+                final ISubject pub3 = new PassthroughSubject();
+
+                i = 0;
+
+                (new Zip(new IPublisher[]{pub1, pub2, pub3})).sink(new Sink() {
+                    protected void onValue(Object value) {
+                        Object[] ti = (Object[])test[i];
+                        assertEqual(true, S.arraysEqual((Object[]) value,ti));
+                        i++;
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(2, i);
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        pass();
+                    }
+                });
+
+                t = new Thread(new Runnable() {
+                    public void run() {
+                        S.sleep(100);
+                        pub1.sendValue("1"); S.sleep(140);
+                        pub2.sendValue("2"); S.sleep(20);
+                        pub3.sendValue("3"); S.sleep(30);
+                        pub3.sendValue("4"); S.sleep(90);
+                        pub2.sendValue("5"); S.sleep(150);
+                        pub1.sendValue("6"); S.sleep(100);
+                        pub2.sendValue("7"); S.sleep(150);
+                        pub1.sendValue("8"); S.sleep(100);
+
+                        pub2.sendCompletion(new Completion(true));
+                        pub1.sendCompletion(new Completion(true));
+                        pub3.sendCompletion(new Completion(true));
+                    }
+                });
+
+                t.start();
+            }
+        };
+     }
 
     protected void destroyApp(boolean unconditional) throws MIDletStateChangeException {
     }

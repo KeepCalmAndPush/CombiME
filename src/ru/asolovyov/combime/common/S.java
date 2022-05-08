@@ -73,6 +73,16 @@ public class S {
 
         int length = arr1.length;
         for (int i = 0; i < length; i++) {
+            Object element1 = arr1[i];
+            Object element2 = arr2[i];
+            if (element1 == null && element2 == null) {
+                continue;
+            }
+
+            if (element1 == null || element2 == null) {
+                return false;
+            }
+
             if (!arr1[i].equals(arr2[i])) {
                 return false;
             }

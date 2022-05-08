@@ -105,7 +105,12 @@ public abstract class TestCase extends Publisher {
         }
         hasRun = true;
         S.debug("TEST " + name + " STARTED");
-        test();
+        try {
+            test();
+        } catch (Exception e) {
+            this.fail("TEST " + name + " FAILED! Uncaught exception:\n" + e);
+            e.printStackTrace();
+        }
     }
 
     public void sendValue(Object value) {

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ru.asolovyov.combime.operators;
+package ru.asolovyov.combime.operators.combining;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -31,6 +31,7 @@ public class Merge extends Publisher {
     }
 
     public Merge(IPublisher[] publishers) {
+        super();
         this.publishers = publishers;
         this.activePublishersCount = publishers.length;
     }

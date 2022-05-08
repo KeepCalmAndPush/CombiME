@@ -15,7 +15,9 @@ import ru.asolovyov.combime.api.ISubscriptionDelegate;
 import ru.asolovyov.combime.api.Identifiable;
 import ru.asolovyov.combime.common.Subscription;
 import ru.asolovyov.combime.common.S;
-import ru.asolovyov.combime.operators.Merge;
+import ru.asolovyov.combime.operators.combining.CombineLatest;
+import ru.asolovyov.combime.operators.combining.Merge;
+import ru.asolovyov.combime.operators.combining.Zip;
 
 /**
  *
@@ -71,5 +73,21 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
 
     public IPublisher merge(IPublisher publisher) {
         return new Merge(new IPublisher[]{this, publisher});
+    }
+
+    public static IPublisher combineLatest(IPublisher[] publishers) {
+        return new CombineLatest(publishers);
+    }
+
+    public IPublisher combineLatest(IPublisher publisher) {
+        return new CombineLatest(new IPublisher[]{this, publisher});
+    }
+
+    public static IPublisher zip(IPublisher[] publishers) {
+        return new Zip(publishers);
+    }
+
+    public IPublisher zip(IPublisher publisher) {
+        return new Zip(new IPublisher[]{this, publisher});
     }
 }

@@ -16,7 +16,7 @@ import ru.asolovyov.combime.operators.Operator;
 public abstract class AllSatisfy extends Operator {
     private boolean allSatisfy = true;
     
-    public Demand receiveInput(Object input) {
+    protected Demand _receiveInput(Object input) {
         allSatisfy &= doesSatisfy(input);
         if (allSatisfy) {
             return Demand.UNLIMITED;

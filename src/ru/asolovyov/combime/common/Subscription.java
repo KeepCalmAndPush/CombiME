@@ -37,38 +37,57 @@ public class Subscription implements ISubscription {
     }
 
     public void cancel() {
-        this.delegate.subscriptionDidCancel(this);
-        isCancelled = true;
+    	this.delegate.getReceptionScheduler().schedule(new Runnable() {
+			public void run() {
+				if (isCompleted || isCancelled) {
+		            return;
+		        }
+		        delegate.subscriptionDidCancel(Subscription.this);
+		        isCancelled = true;
+			}
+		});
     }
 
-    public void requestValues(Demand demand) {
-        this.demand = demand;
-        S.debug("Subscription " + this.getId() + " requested values");
-        this.delegate.subscriptionDidRequestValues(this, demand);
+    public void requestValues(final Demand demand) {
+    	this.delegate.getReceptionScheduler().schedule(new Runnable() {
+    		public void run() {
+    			Subscription.this.demand = demand;
+    	        S.debug("Subscription " + getId() + " requested values");
+    	        delegate.subscriptionDidRequestValues(Subscription.this, demand);
+			}
+    	});
     }
 
-    public void sendValue(Object value) {
-        if (!mayEmitValue()) {
-            return;
-        }
+    public void sendValue(final Object value) {
+    	this.delegate.getReceptionScheduler().schedule(new Runnable() {
+    		public void run() {
+    			if (!mayEmitValue()) {
+    	            return;
+    	        }
+    	        getDemand().decrement();
+    	        Demand next = getSubscriber().receiveInput(value);
+    	        delegate.subscriptionDidSendValue(Subscription.this, value);
+    	        getDemand().add(next);
 
-        getDemand().decrement();
-        Demand next = getSubscriber().receiveInput(value);
-        getDemand().add(next);
-
-        if (demand.getValue() > 0 && demand != Demand.UNLIMITED) {
-            delegate.subscriptionDidRequestValues(this, getDemand());
-        }
+    	        if (demand.getValue() > 0 && demand != Demand.UNLIMITED) {
+    	            delegate.subscriptionDidRequestValues(Subscription.this, getDemand());
+    	        }
+			}
+    	});
     }
 
-    public void sendCompletion(Completion completion) {
-        if (isCompleted) {
-            return;
-        }
-        
-        isCompleted = true;
-        getSubscriber().receiveCompletion(completion);
-        delegate.subscriptionDidCancel(this);
+    public void sendCompletion(final Completion completion) {
+    	this.delegate.getReceptionScheduler().schedule(new Runnable() {
+    		public void run() {
+    			if (isCompleted || isCancelled) {
+    	            return;
+    	        }
+    	        
+    	        isCompleted = true;
+    	        getSubscriber().receiveCompletion(completion);
+    	        delegate.subscriptionDidSendCompletion(Subscription.this, completion);
+			}
+    	});
     }
 
     public ISubscriber getSubscriber() {
@@ -99,4 +118,8 @@ public class Subscription implements ISubscription {
     public void setDelegate(ISubscriptionDelegate delegate) {
         this.delegate = delegate;
     }
+
+	public void connect() {
+		this.requestValues(Demand.UNLIMITED);
+	}
 }

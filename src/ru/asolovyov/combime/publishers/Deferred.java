@@ -2,10 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package ru.asolovyov.combime.publishers;
 
-import ru.asolovyov.combime.api.ICancellable;
 import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscriber;
@@ -22,6 +20,7 @@ import ru.asolovyov.combime.common.Task;
  * @author Администратор
  */
 public class Deferred extends Publisher {
+
     protected Task task;
     protected CurrentValueSubject subject = new CurrentValueSubject(null);
     private boolean taskWasRun = false;
@@ -30,6 +29,7 @@ public class Deferred extends Publisher {
         this.task = task;
 
         task.sink(new Sink() {
+
             protected void onValue(Object value) {
                 S.debug("DEF TASK onValue " + value);
                 Deferred.this.subject.sendValue(value);
@@ -43,8 +43,8 @@ public class Deferred extends Publisher {
         });
     }
 
-    public ICancellable sink(ISubscriber subscriber) {
-        ICancellable subscription = subject.sink(subscriber);
+    public ISubscription sink(ISubscriber subscriber) {
+        ISubscription subscription = subject.sink(subscriber);
         runTaskIfNeeded();
         return subscription;
     }
@@ -55,6 +55,7 @@ public class Deferred extends Publisher {
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
         S.debug("DEFERRED subscriptionDidRequestValues");
+        super.subscriptionDidRequestValues(subscription, demand);
         if (taskWasRun) {
             subject.subscriptionDidRequestValues(subscription, demand);
         } else {
@@ -63,6 +64,7 @@ public class Deferred extends Publisher {
     }
 
     public void subscriptionDidCancel(ISubscription subscription) {
+        super.subscriptionDidCancel(subscription);
         subject.subscriptionDidCancel(subscription);
     }
 

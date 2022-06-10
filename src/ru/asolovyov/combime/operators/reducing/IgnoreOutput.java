@@ -14,7 +14,7 @@ import ru.asolovyov.combime.operators.Operator;
  */
 public class IgnoreOutput extends Operator {
 
-    public Demand receiveInput(Object input) {
+    protected Demand _receiveInput(Object input) {
         return Demand.UNLIMITED;
     }
 

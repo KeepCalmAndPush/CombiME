@@ -42,4 +42,18 @@ public final class Demand {
         }
         --value;
     }
+    
+    public String toString() {
+    	if (this == Demand.UNLIMITED) {
+    		return "UNLIMITED";
+    	}
+    	if (this == Demand.NONE) {
+    		return "NONE";
+    	}
+    	return "" + this.value;
+    }
+
+    public Demand copy() {
+        return new Demand(this.getValue());
+    }
 }

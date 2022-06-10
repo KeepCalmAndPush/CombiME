@@ -16,11 +16,11 @@ import ru.asolovyov.combime.publishers.Publisher;
  * @author Администратор
  */
 public class CombineLatest extends Publisher {
+
     private Hashtable cancellables = new Hashtable();
     private boolean valuesWasRequested = false;
     private IPublisher[] publishers;
     private int activePublishersCount = 0;
-    
     private Object[] latestValues;
 
     public CombineLatest(IPublisher publisher) {
@@ -45,6 +45,7 @@ public class CombineLatest extends Publisher {
             final int index = i;
             IPublisher publisher = publishers[i];
             final ICancellable token = publisher.sink(new Sink() {
+
                 protected void onValue(Object value) {
                     CombineLatest.this.latestValues[index] = value;
                     CombineLatest.this.sendValue(CombineLatest.this.latestValues);
@@ -78,7 +79,7 @@ public class CombineLatest extends Publisher {
     private void cancelAndClearPendingSubscriptions() {
         Enumeration elements = cancellables.elements();
         while (elements.hasMoreElements()) {
-            ICancellable element = (ICancellable)elements.nextElement();
+            ICancellable element = (ICancellable) elements.nextElement();
             element.cancel();
         }
         cancellables.clear();
@@ -87,7 +88,7 @@ public class CombineLatest extends Publisher {
     public void sendValue(Object value) {
         Enumeration elements = subscriptions.elements();
         while (elements.hasMoreElements()) {
-            Subscription element = (Subscription)elements.nextElement();
+            Subscription element = (Subscription) elements.nextElement();
             element.sendValue(value);
         }
     }
@@ -95,13 +96,14 @@ public class CombineLatest extends Publisher {
     public void sendCompletion(Completion completion) {
         Enumeration elements = subscriptions.elements();
         while (elements.hasMoreElements()) {
-            Subscription element = (Subscription)elements.nextElement();
+            Subscription element = (Subscription) elements.nextElement();
             element.sendCompletion(completion);
         }
         subscriptions.removeAllElements();
     }
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
+        super.subscriptionDidRequestValues(subscription, demand);
         serveValuesIfNeeded();
     }
 }

@@ -1,6 +1,7 @@
 package ru.asolovyov.combime.common;
 
 public final class Completion {
+
     private boolean isSuccess;
     private Exception failure;
 
@@ -8,13 +9,11 @@ public final class Completion {
         super();
         if (isSuccess && failure != null) {
             throw new IllegalStateException(
-                    "If completion isSuccess, it MUST NOT have a failure."
-                    );
+                    "If completion isSuccess, it MUST NOT have a failure.");
         }
         if (!isSuccess && failure == null) {
             throw new IllegalStateException(
-                    "If completion NOT isSuccess, it MUST have a failure."
-                    );
+                    "If completion NOT isSuccess, it MUST have a failure.");
         }
         this.isSuccess = isSuccess;
         this.failure = failure;
@@ -44,5 +43,19 @@ public final class Completion {
      */
     public Exception getFailure() {
         return failure;
+    }
+
+    public String toString() {
+        if (isSuccess) {
+            return "SUCCESS";
+        }
+
+        String result = "ERROR";
+
+        if (failure != null) {
+            result += " " + failure;
+        }
+
+        return result;
     }
 }

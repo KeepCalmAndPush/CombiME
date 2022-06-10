@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package ru.asolovyov.combime.common;
 
 import java.util.Enumeration;
@@ -13,10 +12,15 @@ import java.util.Vector;
  * @author Администратор
  */
 public class S {
+    public static boolean isDebugEnabled = false;
+
     public static abstract class Delay {
+
         Thread thread;
+
         public Delay(final long millis) {
             thread = new Thread(new Runnable() {
+
                 public void run() {
                     S.sleep(millis);
                     work();
@@ -29,6 +33,7 @@ public class S {
     }
 
     public static abstract class ForEach {
+
         public ForEach(Object[] array) {
             for (int i = 0; i < array.length; i++) {
                 with(array[i]);
@@ -55,7 +60,9 @@ public class S {
     }
 
     public static void debug(Object s) {
-//        System.out.print(s)
+        if (isDebugEnabled) {
+            System.out.print(s);
+        }
     }
 
     public static void sleep(long millis) {
@@ -108,6 +115,7 @@ public class S {
         for (int i = 0; i < length; i++) {
             S.println(arr1[i]);
         }
+        S.println("Printing array finished.\n");
     }
 
     public static Integer[] boxed(int[] primitives) {
@@ -116,5 +124,38 @@ public class S {
             boxed[i] = new Integer(primitives[i]);
         }
         return boxed;
+    }
+
+    public static void wait(Object o) {
+        S.wait(o, 0);
+    }
+
+    public static void wait(Object o, long timeout) {
+        try {
+            synchronized (o) {
+                o.wait(timeout);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    public static void notify(Object o) {
+        synchronized (o) {
+            o.notify();
+        }
+    }
+
+    public static void notifyAll(Object o) {
+        synchronized (o) {
+            o.notifyAll();
+        }
+    }
+
+    public static Object[] toArray(Vector vector) {
+        Object[] array = new Object[vector.size()];
+        vector.copyInto(array);
+        return array;
     }
 }

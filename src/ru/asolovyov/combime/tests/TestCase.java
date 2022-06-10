@@ -17,7 +17,9 @@ import ru.asolovyov.combime.publishers.Publisher;
  * @author Администратор
  */
 public abstract class TestCase extends Publisher {
+
     public final class Result {
+
         private String message;
         private boolean passed;
 
@@ -29,12 +31,11 @@ public abstract class TestCase extends Publisher {
         public String getMessage() {
             return message;
         }
-        
+
         public boolean passed() {
             return passed;
         }
     }
-
     private String name;
     private boolean hasRun = false;
 
@@ -73,12 +74,24 @@ public abstract class TestCase extends Publisher {
         if (expected == got) {
             return;
         }
-        
+
         if (expected != null && expected.equals(got)) {
             return;
         }
-        
+
         fail("Expected \"" + expected + "\", got \"" + got + "\"");
+    }
+
+    public void assertEqual(Object[] expected, Object[] got) {
+        if (expected == got) {
+            return;
+        }
+
+        if (expected != null && got != null && S.arraysEqual(expected, got)) {
+            return;
+        }
+
+        fail("Expected \"" + S.arrayToString(expected) + "\", got \"" + S.arrayToString(got) + "\"");
     }
 
     public void assertEqual(boolean b1, boolean b2) {
@@ -100,6 +113,7 @@ public abstract class TestCase extends Publisher {
     protected abstract void test();
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
+        super.subscriptionDidRequestValues(subscription, demand);
         if (hasRun) {
             return;
         }

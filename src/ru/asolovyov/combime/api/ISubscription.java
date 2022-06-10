@@ -16,4 +16,5 @@ import ru.asolovyov.combime.common.Demand;
 public interface ISubscription extends ICancellable, Identifiable {
     public void requestValues(Demand demand);
     public ISubscriber getSubscriber();
+    public void connect();
 }

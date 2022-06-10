@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package ru.asolovyov.combime.operators.combining;
 
 import java.util.Enumeration;
@@ -22,12 +21,10 @@ import ru.asolovyov.combime.publishers.Publisher;
  */
 public class Zip extends Publisher {
     private static Object NULL = new Object();
-    
     private Hashtable cancellables = new Hashtable();
     private boolean valuesWasRequested = false;
     private IPublisher[] publishers;
     private int activePublishersCount = 0;
-
     private Object[] zippedValues;
 
     public Zip(IPublisher publisher) {
@@ -53,6 +50,7 @@ public class Zip extends Publisher {
             final int index = i;
             IPublisher publisher = publishers[i];
             final ICancellable token = publisher.sink(new Sink() {
+
                 protected void onValue(Object value) {
                     Zip.this.zippedValues[index] = value;
                     Zip.this.sendAndResetZippedValuesIfNeeded();
@@ -103,7 +101,7 @@ public class Zip extends Publisher {
     private void cancelAndClearPendingSubscriptions() {
         Enumeration elements = cancellables.elements();
         while (elements.hasMoreElements()) {
-            ICancellable element = (ICancellable)elements.nextElement();
+            ICancellable element = (ICancellable) elements.nextElement();
             element.cancel();
         }
         cancellables.clear();
@@ -112,7 +110,7 @@ public class Zip extends Publisher {
     public void sendValue(Object value) {
         Enumeration elements = subscriptions.elements();
         while (elements.hasMoreElements()) {
-            Subscription element = (Subscription)elements.nextElement();
+            Subscription element = (Subscription) elements.nextElement();
             element.sendValue(value);
         }
     }
@@ -120,13 +118,14 @@ public class Zip extends Publisher {
     public void sendCompletion(Completion completion) {
         Enumeration elements = subscriptions.elements();
         while (elements.hasMoreElements()) {
-            Subscription element = (Subscription)elements.nextElement();
+            Subscription element = (Subscription) elements.nextElement();
             element.sendCompletion(completion);
         }
         subscriptions.removeAllElements();
     }
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
+        super.subscriptionDidRequestValues(subscription, demand);
         serveValuesIfNeeded();
     }
 }

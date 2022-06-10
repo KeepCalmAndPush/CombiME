@@ -16,7 +16,7 @@ import ru.asolovyov.combime.operators.Operator;
 public class Count extends Operator {
     private int count;
 
-    public Demand receiveInput(Object input) {
+    protected Demand _receiveInput(Object input) {
         count++;
         return Demand.UNLIMITED;
     }

@@ -2,47 +2,56 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
+package ru.asolovyov.combime.operators.timing;
 
-package ru.asolovyov.combime.operators;
-
-import ru.asolovyov.combime.api.ICancellable;
 import ru.asolovyov.combime.api.ISubscriber;
+import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
-import ru.asolovyov.combime.common.S;
+import ru.asolovyov.combime.operators.Operator;
+import ru.asolovyov.threading.DispatchQueue;
+import ru.asolovyov.threading.Scheduler;
 
 /**
  *
  * @author Администратор
  */
 public class Delay extends Operator {
+
     private long delay = 0;
+    private Scheduler scheduler;
 
     public Delay(long millis) {
-        delay = millis;
-}
+        this(millis, new DispatchQueue(1));
+    }
+
+    public Delay(long millis, Scheduler scheduler) {
+        super();
+        this.delay = millis;
+        this.scheduler = scheduler;
+    }
 
     public Demand receiveInput(final Object input) {
-        (new Thread(new Runnable() {
+        this.scheduler.schedule(this.delay, new Runnable() {
+
             public void run() {
-                S.sleep(Delay.this.delay);
                 Delay.this.sendValue(input);
             }
-        })).start();
+        });
 
         return Demand.UNLIMITED;
     }
 
     public void receiveCompletion(final Completion completion) {
-        (new Thread(new Runnable() {
+        this.scheduler.schedule(this.delay, new Runnable() {
+
             public void run() {
-                S.sleep(Delay.this.delay);
                 Delay.this.sendCompletion(completion);
             }
-        })).start();
+        });
     }
 
-    public ICancellable sink(ISubscriber subscriber) {
+    public ISubscription sink(ISubscriber subscriber) {
         return super.sink(subscriber);
     }
 }

@@ -22,7 +22,7 @@ public abstract class Reduce extends Operator {
 
     protected abstract Object reduce(Object subresult, Object currentValue);
 
-    public Demand receiveInput(Object input) {
+    protected Demand _receiveInput(Object input) {
         Object newValue = mapValue(input);
 
         result = reduce(result, newValue);

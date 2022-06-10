@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package ru.asolovyov.combime.operators.matching;
 
 import ru.asolovyov.combime.common.Completion;
@@ -14,12 +13,14 @@ import ru.asolovyov.combime.operators.Operator;
  * @author Администратор
  */
 public class Contains extends Operator {
+
     private Object value;
+
     public Contains(Object value) {
         this.value = value;
     }
 
-    public Demand receiveInput(Object input) {
+    protected Demand _receiveInput(Object input) {
         if (input.equals(value)) {
             sendValue(new Boolean(true));
             sendCompletion(new Completion(true));

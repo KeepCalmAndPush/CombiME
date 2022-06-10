@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package ru.asolovyov.combime.operators.mapping;
 
 import ru.asolovyov.combime.common.Completion;
@@ -14,6 +13,7 @@ import ru.asolovyov.combime.operators.Operator;
  * @author Администратор
  */
 public abstract class Scan extends Operator {
+
     private Object result;
 
     public Scan(Object initialResult) {
@@ -22,12 +22,12 @@ public abstract class Scan extends Operator {
 
     protected abstract Object scan(Object subresult, Object currentValue);
 
-    public Demand receiveInput(Object input) {
+    protected Demand _receiveInput(Object input) {
         Object newValue = mapValue(input);
-        
+
         result = scan(result, newValue);
         sendValue(result);
-        
+
         return Demand.UNLIMITED;
     }
 
@@ -36,7 +36,7 @@ public abstract class Scan extends Operator {
             sendCompletion(completion);
             return;
         }
-        
+
         sendCompletion(new Completion(true));
     }
 }

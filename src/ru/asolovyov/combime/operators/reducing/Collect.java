@@ -6,7 +6,7 @@
 package ru.asolovyov.combime.operators.reducing;
 
 import java.util.Vector;
-import ru.asolovyov.combime.api.ISubscription;
+
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
 import ru.asolovyov.combime.common.S;
@@ -42,7 +42,7 @@ public class Collect extends Operator {
         this.count = count;
     }
 
-    public Demand receiveInput(Object input) {
+    protected Demand _receiveInput(Object input) {
         startCollectorThreadIfNeeded();
         
         collectedValues.addElement(input);
@@ -59,10 +59,6 @@ public class Collect extends Operator {
             sendCollectedAndReset();
         }
         super.receiveCompletion(completion);
-    }
-
-    public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
-        super.subscriptionDidRequestValues(subscription, demand);
     }
 
     private synchronized void sendCollectedAndReset() {

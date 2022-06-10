@@ -2,33 +2,36 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
-package ru.asolovyov.combime.publishers;
+package ru.asolovyov.combime.operators.sequence;
 
 import java.util.Hashtable;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
 import ru.asolovyov.combime.common.Subscription;
+import ru.asolovyov.combime.publishers.Publisher;
 
 /**
  *
  * @author Администратор
  */
 public class Sequence extends Publisher {
+
     private Object[] sequence;
     private Hashtable servings = new Hashtable();
-    
+
     public Sequence(Object[] sequence) {
         super();
         this.sequence = sequence;
     }
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {
+        super.subscriptionDidRequestValues(subscription, demand);
+
         long count = demand.getValue();
-        Subscription sub = ((Subscription)subscription);
+        Subscription sub = ((Subscription) subscription);
         if (demand == Demand.UNLIMITED || demand.getValue() >= sequence.length) {
-            for(int i = 0; i < sequence.length; i++) {
+            for (int i = 0; i < sequence.length; i++) {
                 sub.sendValue(sequence[i]);
             }
             sub.sendCompletion(new Completion(true));
@@ -47,7 +50,7 @@ public class Sequence extends Publisher {
             return;
         }
 
-        int chunkLength = (int)Math.min(count, sequence.length - i);
+        int chunkLength = (int) Math.min(count, sequence.length - i);
         servings.put(key, new Integer(i + chunkLength));
         int j = 0;
 

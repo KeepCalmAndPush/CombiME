@@ -38,14 +38,21 @@ public class CurrentValueSubject extends PassthroughSubject {
 
         S.debug(this.getId() + " CVS subscriptionDidRequestValues " + subscription.getSubscriber());
 
-        if (value != null) {
-            S.debug(this.getId() + " CVS subscription will receive value " + value);
-            this.sendValue(value);
+        if (getValue() != null) {
+            S.debug(this.getId() + " CVS subscription will receive value " + getValue());
+            this.sendValue(getValue());
         } else if (completion != null) {
             S.debug(this.getId() + " CVS subscription will receive completion " + completion);
             this.sendCompletion(completion);
         } else {
             S.debug(this.getId() + " CVS subscriptionDidRequest NOPE");
         }
+    }
+
+    /**
+     * @return the value
+     */
+    public Object getValue() {
+        return value;
     }
 }

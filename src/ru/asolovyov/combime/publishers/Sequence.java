@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ru.asolovyov.combime.operators.sequence;
+package ru.asolovyov.combime.publishers;
 
 import java.util.Hashtable;
 import ru.asolovyov.combime.api.ISubscription;

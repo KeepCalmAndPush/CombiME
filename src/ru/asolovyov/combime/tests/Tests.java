@@ -51,7 +51,7 @@ import ru.asolovyov.combime.operators.sequence.Output;
 import ru.asolovyov.combime.operators.sequence.Prefix;
 import ru.asolovyov.combime.operators.sequence.PrefixUntilOutput;
 import ru.asolovyov.combime.operators.sequence.Prepend;
-import ru.asolovyov.combime.operators.sequence.Sequence;
+import ru.asolovyov.combime.publishers.Sequence;
 import ru.asolovyov.combime.operators.timing.Debounce;
 import ru.asolovyov.combime.operators.timing.Delay;
 import ru.asolovyov.combime.operators.timing.MeasureInterval;

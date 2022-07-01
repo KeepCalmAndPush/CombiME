@@ -1,5 +1,6 @@
 package ru.asolovyov.combime.operators.sequence;
 
+import ru.asolovyov.combime.publishers.Sequence;
 import java.util.Vector;
 
 import ru.asolovyov.combime.api.IPublisher;

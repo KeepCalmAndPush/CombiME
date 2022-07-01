@@ -5,9 +5,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 import ru.asolovyov.combime.common.Completion;
-import ru.asolovyov.combime.common.Subscriber;
+import ru.asolovyov.combime.operators.Operator;
 
-public class Print extends Subscriber {
+public class Print extends Operator {
 
     private String prefix;
     private PrintStream printStream;

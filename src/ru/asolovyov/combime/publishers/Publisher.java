@@ -4,6 +4,7 @@
  */
 package ru.asolovyov.combime.publishers;
 
+import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -22,7 +23,22 @@ import ru.asolovyov.combime.debugging.HandleEvents;
 import ru.asolovyov.combime.debugging.Print;
 import ru.asolovyov.combime.operators.combining.CombineLatest;
 import ru.asolovyov.combime.operators.combining.Merge;
+import ru.asolovyov.combime.operators.combining.SwitchToLatest;
 import ru.asolovyov.combime.operators.combining.Zip;
+import ru.asolovyov.combime.operators.errorhandling.AssertNoFailure;
+import ru.asolovyov.combime.operators.errorhandling.Retry;
+import ru.asolovyov.combime.operators.filtering.CompactMap;
+import ru.asolovyov.combime.operators.filtering.RemoveDuplicates;
+import ru.asolovyov.combime.operators.filtering.ReplaceEmpty;
+import ru.asolovyov.combime.operators.filtering.ReplaceError;
+import ru.asolovyov.combime.operators.matching.Contains;
+import ru.asolovyov.combime.operators.math.Count;
+import ru.asolovyov.combime.operators.reducing.Collect;
+import ru.asolovyov.combime.operators.reducing.IgnoreOutput;
+import ru.asolovyov.combime.operators.timing.Debounce;
+import ru.asolovyov.combime.operators.timing.Delay;
+import ru.asolovyov.combime.operators.timing.Throttle;
+import ru.asolovyov.combime.operators.timing.Timeout;
 import ru.asolovyov.threading.DummyScheduler;
 import ru.asolovyov.threading.Scheduler;
 
@@ -31,7 +47,6 @@ import ru.asolovyov.threading.Scheduler;
  * @author Администратор
  */
 public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Identifiable {
-
     protected Vector subscriptions = new Vector();
     protected Vector printers = new Vector();
     protected Vector eventHandlers = new Vector();
@@ -129,31 +144,7 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
     public Scheduler getReceptionScheduler() {
         return this.receptionScheduler;
     }
-
-    public static IPublisher merge(IPublisher[] publishers) {
-        return new Merge(publishers);
-    }
-
-    public IPublisher merge(IPublisher publisher) {
-        return new Merge(new IPublisher[]{this, publisher});
-    }
-
-    public static IPublisher combineLatest(IPublisher[] publishers) {
-        return new CombineLatest(publishers);
-    }
-
-    public IPublisher combineLatest(IPublisher publisher) {
-        return new CombineLatest(new IPublisher[]{this, publisher});
-    }
-
-    public static IPublisher zip(IPublisher[] publishers) {
-        return new Zip(publishers);
-    }
-
-    public IPublisher zip(IPublisher publisher) {
-        return new Zip(new IPublisher[]{this, publisher});
-    }
-
+    
     public IPublisher print(Print print) {
         this.printers.addElement(print);
         return this;
@@ -179,4 +170,52 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
     public boolean isCompleted() {
         return isCompleted;
     }
+
+    
+    public IPublisher print() { return this.to(new Print()); }
+    public IPublisher print(String prefix) { return this.to(new Print(prefix)); }
+    public IPublisher print(String prefix, PrintStream printStream) { return this.to(new Print(prefix, printStream)); }
+
+    public static IPublisher merge(IPublisher[] publishers) { return new Merge(publishers); }
+    public IPublisher merge(IPublisher publisher) { return new Merge(new IPublisher[]{this, publisher}); }
+
+    public static IPublisher combineLatest(IPublisher[] publishers) { return new CombineLatest(publishers); }
+    public IPublisher combineLatest(IPublisher publisher) { return new CombineLatest(new IPublisher[]{this, publisher}); }
+
+    public IPublisher switchToLatest() { return this.to(new SwitchToLatest()); }
+
+    public static IPublisher zip(IPublisher[] publishers) {  return new Zip(publishers); }
+    public IPublisher zip(IPublisher publisher) { return new Zip(new IPublisher[]{this, publisher}); }
+
+    public IPublisher assertNoFailure() { return this.to(new AssertNoFailure()); }
+    public IPublisher assertNoFailure(String message) { return this.to(new AssertNoFailure(message)); }
+
+    public IPublisher retry(int count) { return this.to(new Retry(count)); }
+
+    public IPublisher compactMap() { return this.to(new CompactMap()); }
+    public IPublisher removeDuplicates() { return this.to(new RemoveDuplicates()); }
+    public IPublisher replaceEmpty(Object replacement) { return this.to(new ReplaceEmpty(replacement)); }
+    public IPublisher replaceError(Object replacement) { return this.to(new ReplaceError(replacement)); }
+
+    public IPublisher contains(Object object) { return this.to(new Contains(object)); }
+
+    public IPublisher count() { return this.to(new Count()); }
+    public IPublisher max() { return this.to(new Count()); }
+    public IPublisher min() { return this.to(new Count()); }
+
+    public IPublisher collect(int count) { return this.to(new Collect(count)); }
+    public IPublisher collect(long millis) { return this.to(new Collect(millis)); }
+    public IPublisher collect(int count, long millis) { return this.to(new Collect(millis, count)); }
+
+    public IPublisher ignoreOutput() { return this.to(new IgnoreOutput()); }
+
+
+    public IPublisher debounce(long millis) { return this.to(new Debounce(millis)); }
+    public IPublisher delay(long millis) { return this.to(new Delay(millis)); }
+    public IPublisher delay(long millis, Scheduler scheduler) { return this.to(new Delay(millis, scheduler)); }
+    public IPublisher throttle(long millis) { return this.to(new Throttle(millis)); }
+    public IPublisher throttle(long millis, boolean latest) { return this.to(new Throttle(millis, latest)); }
+    public IPublisher throttle(long millis, boolean latest, Scheduler scheduler) { return this.to(new Throttle(millis, latest, scheduler)); }
+    public IPublisher timeout(long millis) { return this.to(new Timeout(millis)); }
+    public IPublisher timeout(long millis, Scheduler scheduler) { return this.to(new Timeout(millis, scheduler)); }
 }

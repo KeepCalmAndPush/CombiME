@@ -12,9 +12,8 @@ import ru.asolovyov.combime.operators.Operator;
  * @author Администратор
  */
 public class RemoveDuplicates extends Operator {
-
     private Object latestValue;
-
+    
     protected boolean areEqual(Object object1, Object object2) {
         if (object1 == null && object2 == null) {
             return true;

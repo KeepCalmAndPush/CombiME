@@ -9,13 +9,13 @@ import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
 import ru.asolovyov.combime.common.Sink;
 import ru.asolovyov.combime.common.Subscription;
-import ru.asolovyov.combime.publishers.Publisher;
+import ru.asolovyov.combime.operators.Operator;
 
 /**
  *
  * @author Администратор
  */
-public class CombineLatest extends Publisher {
+public class CombineLatest extends Operator {
 
     private Hashtable cancellables = new Hashtable();
     private boolean valuesWasRequested = false;

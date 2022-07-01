@@ -6,7 +6,6 @@ package ru.asolovyov.combime.operators.combining;
 
 import ru.asolovyov.combime.api.ICancellable;
 import ru.asolovyov.combime.api.IPublisher;
-import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
 import ru.asolovyov.combime.common.Sink;
@@ -26,7 +25,7 @@ public class SwitchToLatest extends Operator {
         }
 
         IPublisher publisher = (IPublisher) input;
-        latestSubscription = (ISubscription) publisher.sink(new Sink() {
+        latestSubscription = publisher.sink(new Sink() {
 
             protected void onValue(Object value) {
                 SwitchToLatest.this.sendValue(value);

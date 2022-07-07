@@ -5,29 +5,50 @@
 
 package ru.asolovyov.combime.bindings;
 
+import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
+import ru.asolovyov.combime.operators.Operator;
+import ru.asolovyov.combime.operators.mapping.Map;
 import ru.asolovyov.combime.subjects.CurrentValueSubject;
 
 /**
  *
  * @author Администратор
  */
-public class BoolBinding {
-    private CurrentValueSubject subject;
+public class BoolBinding extends PassthroughSubjectValueWrapper {
+    private BoolBinding invertedBinding = null;
 
     public BoolBinding(boolean value) {
-        this.subject = new CurrentValueSubject(new Boolean(value));
+       super(new CurrentValueSubject(new Boolean(value)));
+    }
+
+    private BoolBinding(IPublisher source) {
+        super(source);
     }
 
     public boolean getBool() {
-        return ((Boolean)this.subject.getValue()).booleanValue();
+        return ((Boolean)this.getValue()).booleanValue();
     }
 
     public void setBool(boolean value) {
-        this.subject.sendValue(new Boolean(value));
+        this.sendValue(new Boolean(value));
     }
 
-    public IPublisher getPublisher() {
-        return this.subject;
+    public BoolBinding to(Operator operator) {
+        return new BoolBinding(super.to(operator));
     }
+
+    public BoolBinding inverted() {
+        this.invertedBinding = this.invertedBinding != null
+                ? this.invertedBinding
+                : this.to(new Map() { 
+                      public Object mapValue(Object value) {
+                            return new Boolean(!((Boolean) value).booleanValue());
+                      }
+                  });
+
+        return this.invertedBinding;
+    }
+
+
 }

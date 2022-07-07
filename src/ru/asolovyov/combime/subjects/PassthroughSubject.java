@@ -18,7 +18,6 @@ import ru.asolovyov.combime.common.Subscription;
  * @author Администратор
  */
 public class PassthroughSubject extends Publisher implements ISubject {
-
     public void sendValue(Object value) {
         Enumeration elements = subscriptions.elements();
         S.debug(this.getId() + " PTS sendValue " + value);

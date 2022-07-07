@@ -5,6 +5,7 @@
 
 package ru.asolovyov.combime.bindings;
 
+import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.subjects.CurrentValueSubject;
 
@@ -12,22 +13,24 @@ import ru.asolovyov.combime.subjects.CurrentValueSubject;
  *
  * @author Администратор
  */
-public class ArrayBinding {
-    private CurrentValueSubject subject;
-
+public class ArrayBinding extends PassthroughSubjectValueWrapper {
     public ArrayBinding(Object[] value) {
-        this.subject = new CurrentValueSubject(value);
+        super(new CurrentValueSubject(value));
     }
 
-    public Object[] getValue() {
-        return (Object[]) this.subject.getValue();
+    private ArrayBinding(IPublisher source) {
+        super(source);
+    }
+
+    public Object[] getArray() {
+        return (Object[]) this.getValue();
     }
 
     public void setValue(Object[] value) {
-        this.subject.sendValue(value);
+        this.sendValue(value);
     }
 
-    public IPublisher getPublisher() {
-        return this.subject;
+    public IPublisher to(IOperator operator) {
+        return new ArrayBinding(super.to(operator));
     }
 }

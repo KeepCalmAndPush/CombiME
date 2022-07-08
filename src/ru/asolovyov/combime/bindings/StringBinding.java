@@ -5,8 +5,8 @@
 
 package ru.asolovyov.combime.bindings;
 
-import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
+import ru.asolovyov.combime.operators.Operator;
 import ru.asolovyov.combime.subjects.CurrentValueSubject;
 
 /**
@@ -22,6 +22,11 @@ public class StringBinding extends PassthroughSubjectValueWrapper {
         super(source);
     }
 
+    private StringBinding(StringBinding source) {
+        super(source);
+        this.sendValue(source.getString());
+    }
+
     public String getString() {
         return (String)this.getValue();
     }
@@ -30,7 +35,7 @@ public class StringBinding extends PassthroughSubjectValueWrapper {
         this.sendValue(value);
     }
 
-    public IPublisher to(IOperator operator) {
+    public StringBinding to(Operator operator) {
         return new StringBinding(super.to(operator));
     }
 }

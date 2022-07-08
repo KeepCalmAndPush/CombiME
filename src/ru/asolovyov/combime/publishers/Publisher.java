@@ -47,6 +47,8 @@ import ru.asolovyov.threading.Scheduler;
  * @author Администратор
  */
 public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Identifiable {
+    protected static Object NULL_OBJECT = new Object();
+    
     protected Vector subscriptions = new Vector();
     protected Vector printers = new Vector();
     protected Vector eventHandlers = new Vector();
@@ -208,8 +210,7 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
     public IPublisher collect(int count, long millis) { return this.to(new Collect(millis, count)); }
 
     public IPublisher ignoreOutput() { return this.to(new IgnoreOutput()); }
-
-
+    
     public IPublisher debounce(long millis) { return this.to(new Debounce(millis)); }
     public IPublisher delay(long millis) { return this.to(new Delay(millis)); }
     public IPublisher delay(long millis, Scheduler scheduler) { return this.to(new Delay(millis, scheduler)); }

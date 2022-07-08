@@ -10,7 +10,6 @@ import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Sink;
 import ru.asolovyov.combime.subjects.CurrentValueSubject;
-import ru.asolovyov.combime.subjects.PassthroughSubject;
 
 /**
  *
@@ -33,7 +32,7 @@ public class PassthroughSubjectValueWrapper extends CurrentValueSubject {
         });
     }
 
-    public IPublisher to(IOperator operator) {
-        return super.to(operator);
-    }
+//    public IPublisher to(IOperator operator) {
+//        return super.to(operator);
+//    }
 }

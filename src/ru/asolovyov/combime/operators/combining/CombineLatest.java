@@ -31,7 +31,7 @@ public class CombineLatest extends Operator {
         super();
         this.publishers = publishers;
         this.activePublishersCount = publishers.length;
-        this.latestValues = new Object[publishers.length];
+        this.latestValues = new Object[publishers.length + 1];
     }
 
     private synchronized void serveValuesIfNeeded() {
@@ -47,8 +47,8 @@ public class CombineLatest extends Operator {
             final ICancellable token = publisher.sink(new Sink() {
 
                 protected void onValue(Object value) {
-                    CombineLatest.this.latestValues[index] = value;
-                    CombineLatest.this.sendValue(CombineLatest.this.latestValues);
+                    CombineLatest.this.latestValues[index + 1] = value;
+                    CombineLatest.this.flush();
                 }
 
                 protected void onCompletion(Completion completion) {
@@ -65,7 +65,7 @@ public class CombineLatest extends Operator {
 
         if (!completion.isSuccess()) {
             cancelAndClearPendingSubscriptions();
-            sendCompletion(completion);
+            _sendCompletion(completion);
             return;
         }
 
@@ -73,7 +73,7 @@ public class CombineLatest extends Operator {
             return;
         }
 
-        sendCompletion(new Completion(true));
+        _sendCompletion(new Completion(true));
     }
 
     private void cancelAndClearPendingSubscriptions() {
@@ -86,14 +86,24 @@ public class CombineLatest extends Operator {
     }
 
     public void sendValue(Object value) {
+        this.latestValues[0] = value;
+        this.flush();
+    }
+
+    private void flush() {
         Enumeration elements = subscriptions.elements();
         while (elements.hasMoreElements()) {
             Subscription element = (Subscription) elements.nextElement();
-            element.sendValue(value);
+            element.sendValue(this.latestValues);
         }
     }
-
+    
     public void sendCompletion(Completion completion) {
+        this.processCompletion(completion, new Integer(0));
+        
+    }
+
+    private void _sendCompletion(Completion completion) {
         Enumeration elements = subscriptions.elements();
         while (elements.hasMoreElements()) {
             Subscription element = (Subscription) elements.nextElement();

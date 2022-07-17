@@ -5,7 +5,6 @@
 
 package ru.asolovyov.combime.bindings;
 
-import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.operators.Operator;
 import ru.asolovyov.combime.operators.mapping.Map;
@@ -15,14 +14,14 @@ import ru.asolovyov.combime.subjects.CurrentValueSubject;
  *
  * @author Администратор
  */
-public class BoolBinding extends PassthroughSubjectValueWrapper {
-    private BoolBinding invertedBinding = null;
+public class Bool extends PassthroughSubjectValueWrapper {
+    private Bool invertedBinding = null;
 
-    public BoolBinding(boolean value) {
+    public Bool(boolean value) {
        super(new CurrentValueSubject(new Boolean(value)));
     }
 
-    private BoolBinding(IPublisher source) {
+    private Bool(IPublisher source) {
         super(source);
     }
 
@@ -34,11 +33,11 @@ public class BoolBinding extends PassthroughSubjectValueWrapper {
         this.sendValue(new Boolean(value));
     }
 
-    public BoolBinding to(Operator operator) {
-        return new BoolBinding(super.to(operator));
+    public Bool to(Operator operator) {
+        return new Bool(super.to(operator));
     }
 
-    public BoolBinding inverted() {
+    public Bool inverted() {
         this.invertedBinding = this.invertedBinding != null
                 ? this.invertedBinding
                 : this.to(new Map() { 

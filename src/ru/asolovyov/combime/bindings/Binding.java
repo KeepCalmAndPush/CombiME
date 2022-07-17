@@ -10,8 +10,8 @@ package ru.asolovyov.combime.bindings;
  * @author Администратор
  */
 public class Binding {
-    public static BoolBinding Bool(boolean value) {
-        return new BoolBinding(value);
+    public static Bool Bool(boolean value) {
+        return new Bool(value);
     }
 
     public static IntBinding Int(int value) {

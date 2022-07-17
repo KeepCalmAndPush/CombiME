@@ -31,8 +31,4 @@ public class PassthroughSubjectValueWrapper extends CurrentValueSubject {
             }
         });
     }
-
-//    public IPublisher to(IOperator operator) {
-//        return super.to(operator);
-//    }
 }

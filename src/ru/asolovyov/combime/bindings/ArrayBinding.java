@@ -26,7 +26,7 @@ public class ArrayBinding extends PassthroughSubjectValueWrapper {
         return (Object[]) this.getValue();
     }
 
-    public void setValue(Object[] value) {
+    public void setArray(Object[] value) {
         this.sendValue(value);
     }
 

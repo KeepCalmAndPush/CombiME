@@ -18,6 +18,10 @@ public class IntBinding extends PassthroughSubjectValueWrapper {
         super(new CurrentValueSubject(new Integer(value)));
     }
 
+    public IntBinding(Integer value) {
+        super(new CurrentValueSubject(value));
+    }
+
     private IntBinding(IPublisher source) {
         super(source);
     }

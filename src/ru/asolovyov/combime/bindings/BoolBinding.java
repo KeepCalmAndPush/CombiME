@@ -14,14 +14,18 @@ import ru.asolovyov.combime.subjects.CurrentValueSubject;
  *
  * @author Администратор
  */
-public class Bool extends PassthroughSubjectValueWrapper {
-    private Bool invertedBinding = null;
+public class BoolBinding extends PassthroughSubjectValueWrapper {
+    private BoolBinding invertedBinding = null;
 
-    public Bool(boolean value) {
+    public BoolBinding(boolean value) {
        super(new CurrentValueSubject(new Boolean(value)));
     }
 
-    private Bool(IPublisher source) {
+    public BoolBinding(Boolean value) {
+       super(new CurrentValueSubject(value));
+    }
+
+    private BoolBinding(IPublisher source) {
         super(source);
     }
 
@@ -33,11 +37,11 @@ public class Bool extends PassthroughSubjectValueWrapper {
         this.sendValue(new Boolean(value));
     }
 
-    public Bool to(Operator operator) {
-        return new Bool(super.to(operator));
+    public BoolBinding to(Operator operator) {
+        return new BoolBinding(super.to(operator));
     }
 
-    public Bool inverted() {
+    public BoolBinding inverted() {
         this.invertedBinding = this.invertedBinding != null
                 ? this.invertedBinding
                 : this.to(new Map() { 

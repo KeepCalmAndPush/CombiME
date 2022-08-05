@@ -5,7 +5,6 @@
 
 package ru.asolovyov.combime.bindings;
 
-import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Sink;

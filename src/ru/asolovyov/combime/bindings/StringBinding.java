@@ -18,7 +18,7 @@ public class StringBinding extends PassthroughSubjectValueWrapper {
         super(new CurrentValueSubject(value));
     }
 
-    private StringBinding(IPublisher source) {
+    public StringBinding(IPublisher source) {
         super(source);
     }
 

@@ -13,28 +13,24 @@ import ru.asolovyov.combime.subjects.CurrentValueSubject;
  *
  * @author Администратор
  */
-public class IntBinding extends PassthroughSubjectValueWrapper {
-    public IntBinding(int value) {
-        super(new CurrentValueSubject(new Integer(value)));
-    }
-
-    public IntBinding(Integer value) {
+public class Obj extends PassthroughSubjectValueWrapper {
+    public Obj(Object value) {
         super(new CurrentValueSubject(value));
     }
 
-    private IntBinding(IPublisher source) {
+    public Obj(IPublisher source) {
         super(source);
     }
 
-    public int getInt() {
-        return ((Integer)this.getValue()).intValue();
+    public Object getObject() {
+        return this.getValue();
     }
 
-    public void setInt(int value) {
-        this.sendValue(new Integer(value));
+    public void setObject(Object value) {
+        this.sendValue(value);
     }
 
     public IPublisher to(IOperator operator) {
-        return new IntBinding(super.to(operator));
+        return new Obj(super.to(operator));
     }
 }

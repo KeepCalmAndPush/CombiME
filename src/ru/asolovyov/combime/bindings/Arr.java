@@ -13,12 +13,16 @@ import ru.asolovyov.combime.subjects.CurrentValueSubject;
  *
  * @author Администратор
  */
-public class ArrayBinding extends PassthroughSubjectValueWrapper {
-    public ArrayBinding(Object[] value) {
+public class Arr extends PassthroughSubjectValueWrapper {
+    public static abstract class Enumerator {
+        public abstract void onElement(Object element);
+    }
+    
+    public Arr(Object[] value) {
         super(new CurrentValueSubject(value));
     }
 
-    private ArrayBinding(IPublisher source) {
+    private Arr(IPublisher source) {
         super(source);
     }
 
@@ -31,6 +35,14 @@ public class ArrayBinding extends PassthroughSubjectValueWrapper {
     }
 
     public IPublisher to(IOperator operator) {
-        return new ArrayBinding(super.to(operator));
+        return new Arr(super.to(operator));
+    }
+
+    public void forEach(Enumerator e) {
+        Object[] elements = this.getArray();
+        for (int i = 0; i < elements.length; i++) {
+            Object object = elements[i];
+            e.onElement(object);
+        }
     }
 }

@@ -18,6 +18,7 @@ import ru.asolovyov.combime.api.Identifiable;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
 import ru.asolovyov.combime.common.S;
+import ru.asolovyov.combime.common.Sink;
 import ru.asolovyov.combime.common.Subscription;
 import ru.asolovyov.combime.debugging.HandleEvents;
 import ru.asolovyov.combime.debugging.Print;
@@ -92,6 +93,17 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
         subscriber.receiveSubscription(subscription);
 
         return subscription;
+    }
+
+    public ISubscription route(final ISubject subject) {
+        return this.sink(new Sink() {
+            protected void onValue(Object value) {
+                subject.sendValue(value);
+            }
+            protected void onCompletion(Completion completion) {
+                subject.sendCompletion(completion);
+            }
+        });
     }
 
     public IPublisher to(IOperator operator) {

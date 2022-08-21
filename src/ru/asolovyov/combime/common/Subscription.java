@@ -13,7 +13,6 @@ import ru.asolovyov.combime.api.ISubscriptionDelegate;
  * @author Администратор
  */
 public class Subscription implements ISubscription {
-
     private long id;
     private static long ID_COUNTER = 0;
     private ISubscriber subscriber;

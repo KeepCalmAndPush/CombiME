@@ -13,16 +13,16 @@ import ru.asolovyov.combime.subjects.CurrentValueSubject;
  *
  * @author Администратор
  */
-public class StringBinding extends PassthroughSubjectValueWrapper {
-    public StringBinding(String value) {
+public class Str extends PassthroughSubjectValueWrapper {
+    public Str(String value) {
         super(new CurrentValueSubject(value));
     }
 
-    public StringBinding(IPublisher source) {
+    public Str(IPublisher source) {
         super(source);
     }
 
-    private StringBinding(StringBinding source) {
+    private Str(Str source) {
         super(source);
         this.sendValue(source.getString());
     }
@@ -35,7 +35,7 @@ public class StringBinding extends PassthroughSubjectValueWrapper {
         this.sendValue(value);
     }
 
-    public StringBinding to(Operator operator) {
-        return new StringBinding(super.to(operator));
+    public Str to(Operator operator) {
+        return new Str(super.to(operator));
     }
 }

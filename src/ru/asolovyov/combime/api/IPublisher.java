@@ -13,8 +13,11 @@ import ru.asolovyov.threading.Scheduler;
  * @author Администратор
  */
 public interface IPublisher extends Identifiable {
-    public ISubscription sink(ISubscriber subscriber);
     public IPublisher to(IOperator operator);
+    
+    public ISubscription sink(ISubscriber subscriber);
+    public ISubscription route(ISubject subject);
+
     public IPublisher receiveOn(Scheduler scheduler);
 
     public IPublisher print();

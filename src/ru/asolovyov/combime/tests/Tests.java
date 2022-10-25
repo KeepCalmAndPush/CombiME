@@ -528,16 +528,16 @@ public class Tests extends MIDlet {
             String result = "";
 
             protected void test() {
-                (new Sequence(new Object[]{"1", null, "2", null, "3"})).to(new CompactMap()).sink(new Sink() {
-
-                    protected void onValue(Object value) {
-                        result += value;
-                    }
-
-                    protected void onCompletion(Completion completion) {
-                        assertEqual("123", result);
-                        pass();
-                    }
+                (new Sequence(new Object[]{"1", null, "2", null, "3"}))
+                        .to(new CompactMap())
+                        .sink(new Sink() {
+                            protected void onValue(Object value) {
+                                result += value;
+                            }
+                            protected void onCompletion(Completion completion) {
+                                assertEqual("123", result);
+                                pass();
+                            }
                 });
             }
         };
@@ -628,7 +628,6 @@ public class Tests extends MIDlet {
                         return new Just("" + i).to(new Delay(1000 + i * 100));
                     }
                 }).sink(new Sink() {
-
                     protected void onValue(Object value) {
                         result += value;
                         j++;

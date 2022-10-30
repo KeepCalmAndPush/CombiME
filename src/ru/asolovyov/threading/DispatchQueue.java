@@ -11,10 +11,10 @@ public final class DispatchQueue implements Scheduler {
     private int busyThreadsCount = 0;
     private int idleThreadsCount = 0;
     private int numberOfConcurrentOperations = 0;
-    private long threadIdlingTimeout = 5000;
+    private long threadIdlingTimeout = Integer.MAX_VALUE;
 
     public DispatchQueue(int numberOfConcurrentOperations) {
-        this(numberOfConcurrentOperations, 5000);
+        this(numberOfConcurrentOperations, Integer.MAX_VALUE);
     }
 
     public DispatchQueue(int numberOfConcurrentOperations, long threadIdlingTimeout) {

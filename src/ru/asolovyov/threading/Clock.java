@@ -6,6 +6,7 @@
 package ru.asolovyov.threading;
 
 import java.util.Vector;
+import javax.microedition.lcdui.List;
 import ru.asolovyov.combime.common.S;
 /**
  *
@@ -16,6 +17,7 @@ public class Clock {
     private Thread workThread;
     private final int tickIntervalMillis;
     private Vector runnables = new Vector();
+    private Vector onceRunnables = new Vector();
 
     public Clock(int tickIntervalMillis) {
         super();
@@ -32,10 +34,15 @@ public class Clock {
                     catch (Exception ex) {
                         ex.printStackTrace();
                     }
-
+                    
                     for (int i = 0; i < runnables.size(); i++) {
                         Runnable task = (Runnable) (runnables.elementAt(i));
                         task.run();
+                    }
+
+                    for (int i = 0; i < onceRunnables.size(); i++) {
+                        Runnable task = (Runnable) (onceRunnables.elementAt(i));
+                        remove(task);
                     }
                 }
             }
@@ -60,7 +67,13 @@ public class Clock {
         this.runnables.addElement(runnable);
     }
 
+    public void addOnce(Runnable runnable) {
+        this.runnables.addElement(runnable);
+        this.onceRunnables.addElement(runnable);
+    }
+
     public void remove(Runnable runnable) {
         this.runnables.removeElement(runnable);
+        this.onceRunnables.addElement(runnable);
     }
 }

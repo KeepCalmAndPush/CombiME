@@ -158,4 +158,37 @@ public class S {
         vector.copyInto(array);
         return array;
     }
+
+    public static boolean contains(int i, int[] arr) {
+        for (int j = 0; j < arr.length; j++) {
+            int k = arr[j];
+            if (k == i) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean contains(char i, char[] arr) {
+        for (int j = 0; j < arr.length; j++) {
+            char k = arr[j];
+            if (k == i) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean contains(String i, String[] arr) {
+        for (int j = 0; j < arr.length; j++) {
+            String k = arr[j];
+            if (k == null ? i == null : k.equals(i)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

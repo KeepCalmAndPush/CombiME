@@ -36,6 +36,8 @@ import ru.asolovyov.combime.operators.matching.Contains;
 import ru.asolovyov.combime.operators.math.Count;
 import ru.asolovyov.combime.operators.reducing.Collect;
 import ru.asolovyov.combime.operators.reducing.IgnoreOutput;
+import ru.asolovyov.combime.operators.sequence.Drop;
+import ru.asolovyov.combime.operators.sequence.Prefix;
 import ru.asolovyov.combime.operators.timing.Debounce;
 import ru.asolovyov.combime.operators.timing.Delay;
 import ru.asolovyov.combime.operators.timing.Throttle;
@@ -113,7 +115,7 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
     }
 
     public String toString() {
-        return super.toString() + " subscriptions: " + subscriptions.size();
+        return S.stripPackageName(super.toString()) + " subscriptions: " + subscriptions.size();
     }
 
     public void subscriptionDidCancel(ISubscription subscription) {
@@ -128,7 +130,6 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
         sendValueToPrint("request: " + demand);
         for (int i = 0; i < eventHandlers.size(); i++) {
             ((HandleEvents) eventHandlers.elementAt(i)).receiveDemand(subscription, demand);
-            ;
         }
     }
 
@@ -137,7 +138,6 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
         sendValueToPrint("receive value: " + value);
         for (int i = 0; i < eventHandlers.size(); i++) {
             ((HandleEvents) eventHandlers.elementAt(i)).receiveOutput(subscription, value);
-            ;
         }
     }
 
@@ -185,7 +185,6 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
         return isCompleted;
     }
 
-    
     public IPublisher print() { return this.to(new Print()); }
     public IPublisher print(String prefix) { return this.to(new Print(prefix)); }
     public IPublisher print(String prefix, PrintStream printStream) { return this.to(new Print(prefix, printStream)); }
@@ -197,6 +196,8 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
     public IPublisher combineLatest(IPublisher publisher) { return new CombineLatest(new IPublisher[]{this, publisher}); }
 
     public IPublisher switchToLatest() { return this.to(new SwitchToLatest()); }
+    public IPublisher drop(int n) { return this.to(new Drop(n)); }
+    public IPublisher prefix(int n) { return this.to(new Prefix(n)); }
 
     public static IPublisher zip(IPublisher[] publishers) {  return new Zip(publishers); }
     public IPublisher zip(IPublisher publisher) { return new Zip(new IPublisher[]{this, publisher}); }

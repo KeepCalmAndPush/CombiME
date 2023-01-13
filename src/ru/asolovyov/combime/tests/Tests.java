@@ -63,6 +63,7 @@ import ru.asolovyov.combime.publishers.Future;
 import ru.asolovyov.combime.publishers.Just;
 import ru.asolovyov.combime.publishers.Publisher;
 import ru.asolovyov.combime.publishers.Record;
+import ru.asolovyov.combime.subjects.CurrentValueSubject;
 import ru.asolovyov.combime.subjects.PassthroughSubject;
 import ru.asolovyov.threading.DispatchQueue;
 
@@ -139,10 +140,10 @@ public class Tests extends MIDlet {
             this.testDropUntil()
         };
 
-//        tests = new IPublisher[] {
-//            testMeasureInterval(),
-//            testRecord()
-//        };
+        tests = new IPublisher[] {
+            testSwitchToLatest()
+//            testCVSSwitchToLatest()
+        };
 
         final IPublisher[] ftests = tests;
 
@@ -1456,6 +1457,41 @@ public class Tests extends MIDlet {
                 pub2.sendCompletion(new Completion(true));
                 pub1.sendCompletion(new Completion(true));
                 pub3.sendCompletion(new Completion(true));
+            }
+        };
+    }
+
+    //NOT COMPLETED, FAILS
+    private IPublisher testCVSSwitchToLatest() {
+        return new TestCase("CVS SWITCH TO LATEST") {
+
+            String result = "";
+
+            protected void test() {
+                ISubject pub1 = new CurrentValueSubject("1");
+                ISubject pub2 = new CurrentValueSubject("2");
+                ISubject pub3 = new CurrentValueSubject("3");
+
+                ISubject supersub = new PassthroughSubject();
+
+                supersub.sendValue(pub2);
+                supersub.sendValue(pub1);
+                supersub.sendValue(pub3);
+
+                supersub.to(new SwitchToLatest()).sink(new Sink() {
+
+                    protected void onValue(Object value) {
+                        result += (String) value;
+                        S.println("RES: " + result);
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        assertEqual("213", result);
+                        pass();
+                    }
+                });
             }
         };
     }

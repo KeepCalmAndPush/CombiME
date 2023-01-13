@@ -14,7 +14,7 @@ import ru.asolovyov.combime.subjects.CurrentValueSubject;
  *
  * @author Администратор
  */
-public class Bool extends PassthroughSubjectValueWrapper {
+public class Bool extends CurrentValueSubjectWrapper {
     private Bool invertedBinding = null;
 
     public Bool(boolean value) {
@@ -29,7 +29,7 @@ public class Bool extends PassthroughSubjectValueWrapper {
         super(source);
     }
 
-    public boolean getBool() {
+    public boolean getBoolean() {
         return ((Boolean)this.getValue()).booleanValue();
     }
 

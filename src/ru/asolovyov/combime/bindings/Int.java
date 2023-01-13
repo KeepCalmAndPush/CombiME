@@ -7,13 +7,14 @@ package ru.asolovyov.combime.bindings;
 
 import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
+import ru.asolovyov.combime.common.S;
 import ru.asolovyov.combime.subjects.CurrentValueSubject;
 
 /**
  *
  * @author Администратор
  */
-public class Int extends PassthroughSubjectValueWrapper {
+public class Int extends CurrentValueSubjectWrapper {
     public Int(int value) {
         super(new CurrentValueSubject(new Integer(value)));
     }
@@ -36,5 +37,9 @@ public class Int extends PassthroughSubjectValueWrapper {
 
     public IPublisher to(IOperator operator) {
         return new Int(super.to(operator));
+    }
+
+    public String toString() {
+        return "KEK " + S.stripPackageName(super.toString()) + " VALUE " + getValue();
     }
 }

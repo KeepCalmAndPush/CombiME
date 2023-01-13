@@ -30,6 +30,9 @@ public interface IPublisher extends Identifiable {
     public IPublisher switchToLatest();
     public IPublisher zip(IPublisher publisher);
 
+    public IPublisher drop(int n);
+    public IPublisher prefix(int n);
+
     public IPublisher assertNoFailure();
     public IPublisher assertNoFailure(String message);
 

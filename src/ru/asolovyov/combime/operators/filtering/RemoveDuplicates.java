@@ -15,12 +15,14 @@ public class RemoveDuplicates extends Operator {
     private Object latestValue;
     
     protected boolean areEqual(Object object1, Object object2) {
-        if (object1 == null && object2 == null) {
+        if (object1 == object2) {
             return true;
         }
+        
         if (object1 != null && object1.equals(object2)) {
             return true;
         }
+        
         return false;
     }
 

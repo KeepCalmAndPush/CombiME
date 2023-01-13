@@ -13,7 +13,7 @@ import ru.asolovyov.combime.subjects.CurrentValueSubject;
  *
  * @author Администратор
  */
-public class Obj extends PassthroughSubjectValueWrapper {
+public class Obj extends CurrentValueSubjectWrapper {
     public Obj(Object value) {
         super(new CurrentValueSubject(value));
     }

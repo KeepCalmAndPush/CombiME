@@ -13,7 +13,7 @@ import ru.asolovyov.combime.subjects.CurrentValueSubject;
  *
  * @author Администратор
  */
-public class Arr extends PassthroughSubjectValueWrapper {
+public class Arr extends CurrentValueSubjectWrapper {
     public static abstract class Enumerator {
         public abstract void onElement(Object element);
     }

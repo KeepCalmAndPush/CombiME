@@ -14,10 +14,10 @@ import ru.asolovyov.combime.subjects.CurrentValueSubject;
  *
  * @author Администратор
  */
-public class PassthroughSubjectValueWrapper extends CurrentValueSubject {
+public class CurrentValueSubjectWrapper extends CurrentValueSubject {
     protected IPublisher subject;
 
-    public PassthroughSubjectValueWrapper(IPublisher wrappee) {
+    public CurrentValueSubjectWrapper(IPublisher wrappee) {
         super(null);
         this.subject = wrappee;
         this.subject.sink(new Sink() {

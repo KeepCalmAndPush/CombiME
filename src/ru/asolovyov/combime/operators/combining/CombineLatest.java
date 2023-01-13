@@ -7,9 +7,11 @@ import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
+import ru.asolovyov.combime.common.S;
 import ru.asolovyov.combime.common.Sink;
 import ru.asolovyov.combime.common.Subscription;
 import ru.asolovyov.combime.operators.Operator;
+import ru.asolovyov.combime.subjects.CurrentValueSubject;
 
 /**
  *
@@ -31,23 +33,15 @@ public class CombineLatest extends Operator {
         super();
         this.publishers = publishers;
         this.activePublishersCount = publishers.length;
-        this.latestValues = new Object[publishers.length + 1];
-    }
 
-    private synchronized void serveValuesIfNeeded() {
-        if (this.valuesWasRequested) {
-            return;
-        }
-
-        this.valuesWasRequested = true;
-
+        this.latestValues = new Object[publishers.length];
         for (int i = 0; i < publishers.length; i++) {
             final int index = i;
             IPublisher publisher = publishers[i];
             final ICancellable token = publisher.sink(new Sink() {
 
                 protected void onValue(Object value) {
-                    CombineLatest.this.latestValues[index + 1] = value;
+                    CombineLatest.this.latestValues[index] = value;
                     CombineLatest.this.flush();
                 }
 
@@ -57,6 +51,15 @@ public class CombineLatest extends Operator {
             });
             cancellables.put(new Integer(i), token);
         }
+    }
+
+    private synchronized void serveValuesIfNeeded() {
+        if (this.valuesWasRequested) {
+            return;
+        }
+
+        this.valuesWasRequested = true;
+        this.flush();
     }
 
     private void processCompletion(Completion completion, Integer nullableCancellableKey) {
@@ -86,7 +89,6 @@ public class CombineLatest extends Operator {
     }
 
     public void sendValue(Object value) {
-        this.latestValues[0] = value;
         this.flush();
     }
 
@@ -100,7 +102,6 @@ public class CombineLatest extends Operator {
     
     public void sendCompletion(Completion completion) {
         this.processCompletion(completion, new Integer(0));
-        
     }
 
     private void _sendCompletion(Completion completion) {

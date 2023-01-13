@@ -20,7 +20,6 @@ public class S {
 
         public Delay(final long millis) {
             thread = new Thread(new Runnable() {
-
                 public void run() {
                     S.sleep(millis);
                     work();
@@ -51,6 +50,10 @@ public class S {
         protected abstract void with(Object item);
     }
 
+    public static abstract class Filter {
+        public abstract boolean filter(Object object);
+    }
+
     public static void print(Object s) {
         System.out.print(s);
     }
@@ -63,6 +66,17 @@ public class S {
         if (isDebugEnabled) {
             System.out.print(s);
         }
+    }
+
+    public static String stripPackageName(String string) {
+        int index = string.lastIndexOf('.');
+        if (index == -1) {
+            return string;
+        }
+        if (index == string.length() - 1) {
+            return "";
+        }
+        return string.substring(index + 1);
     }
 
     public static void sleep(long millis) {
@@ -103,7 +117,7 @@ public class S {
 
         int length = arr1.length;
         for (int i = 0; i < length; i++) {
-            result.append(arr1[i]);
+            result.append(arr1[i]).append(i == length - 1 ? "" : ", ");
         }
 
         return result.toString();
@@ -124,6 +138,17 @@ public class S {
             boxed[i] = new Integer(primitives[i]);
         }
         return boxed;
+    }
+
+    public static Object[] filter(Object[] objects, Filter filter) {
+        Vector kept = new Vector();
+        for (int i = 0; i < objects.length; i ++) {
+            Object object = objects[i];
+            if (filter.filter(object)) {
+                kept.addElement(object);
+            }
+        }
+        return S.toArray(kept);
     }
 
     public static void wait(Object o) {

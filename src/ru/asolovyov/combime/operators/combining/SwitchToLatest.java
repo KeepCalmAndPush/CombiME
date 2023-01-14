@@ -22,7 +22,7 @@ public class SwitchToLatest extends Operator {
     private ICancellable latestSubscription;
 
     public Demand receiveInput(Object input) {
-        S.debug(this.getId() + " KEK(Object input) " + input);
+        S.println(this.getId() + " KEK(Object input) " + input);
 
         if (latestSubscription != null) {
             latestSubscription.cancel();
@@ -31,9 +31,11 @@ public class SwitchToLatest extends Operator {
         IPublisher publisher = (IPublisher) input;
         latestSubscription = publisher.sink(new Sink() {
             protected void onValue(Object value) {
+                S.println(getId() + " WILL SEND VALUE " + value);
                 SwitchToLatest.this.sendValue(value);
             }
             protected void onCompletion(Completion completion) {
+                S.println(getId() + " WILL SEND COMPLETION " + completion);
                 SwitchToLatest.this.sendCompletion(completion);
             }
         });

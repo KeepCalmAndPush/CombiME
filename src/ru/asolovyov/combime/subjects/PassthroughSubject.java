@@ -19,24 +19,25 @@ import ru.asolovyov.combime.common.Subscription;
  */
 public class PassthroughSubject extends Publisher implements ISubject {
     public void sendValue(Object value) {
-        Enumeration elements = subscriptions.elements();
-        S.debug(this.getId() + " PTS sendValue " + value);
-        while (elements.hasMoreElements()) {
-            Subscription element = (Subscription) elements.nextElement();
-            S.debug("to " + element.getSubscriber());
-            element.sendValue(value);
+        Object[] susbcriptions = S.toArray(subscriptions);
+        S.debug(this + " PTS sendValue " + value);
+        for (int i = 0; i < susbcriptions.length; i++) {
+            Subscription subscription = (Subscription) susbcriptions[i];
+            S.debug("to " + subscription.getSubscriber());
+            subscription.sendValue(value);
         }
     }
 
     public void sendCompletion(Completion completion) {
-        Enumeration elements = subscriptions.elements();
-        S.debug(this.getId() + " PTS Sending completion");
-        while (elements.hasMoreElements()) {
-            Subscription element = (Subscription) elements.nextElement();
-            S.debug(this.getId() + " PTS Sending completion to " + element);
-            element.sendCompletion(completion);
+        Object[] subscriptions = S.toArray(this.subscriptions);
+        S.debug(this + " PTS Sending completion to " + subscriptions.length + " subscriptions");
+        for (int i = 0; i < subscriptions.length; i++) {
+            Subscription subscription = (Subscription) subscriptions[i];
+            S.debug("to " + subscription.getSubscriber());
+            subscription.sendCompletion(completion);
         }
-        subscriptions.removeAllElements();
+        S.debug("DONE " + subscriptions.length);
+        this.subscriptions.removeAllElements();
     }
 
     public void subscriptionDidRequestValues(ISubscription subscription, Demand demand) {

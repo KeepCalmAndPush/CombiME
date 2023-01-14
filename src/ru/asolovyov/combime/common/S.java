@@ -124,12 +124,12 @@ public class S {
     }
 
     public static void printArr(Object[] arr1) {
-        S.println("Printing array: " + arr1);
+        S.debug("Printing array: " + arr1);
         int length = arr1.length;
         for (int i = 0; i < length; i++) {
-            S.println(arr1[i]);
+            S.print(arr1[i] + " ");
         }
-        S.println("Printing array finished.\n");
+        S.debug("Printing array finished.\n");
     }
 
     public static Integer[] boxed(int[] primitives) {

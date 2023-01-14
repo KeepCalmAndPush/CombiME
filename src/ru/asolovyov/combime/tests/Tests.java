@@ -83,65 +83,67 @@ public class Tests extends MIDlet {
         display.setCurrent(form);
 
         IPublisher tests[] = {
-            this.testSubRecSchedulers(),
-            this.testRecord(),
-            this.testAssertNoFailure(),
-            this.testRetry(),
-            this.testMeasureInterval(),
-            this.testThrottle(),
-            this.testDebounce(),
-            this.testTimeout(),
-            this.testPrepend(),
-            this.testDrop(),
-            this.testFirst(),
-            this.testOutput(),
-            this.testPrefix(),
-            this.testJust(),
-            this.testEmpty(),
-            this.testFail(),
-            this.testReduce(),
-            this.testCancel(),
-            this.testFutureMap(),
-            this.testScan(),
-            this.testMergeReduce(),
-            this.testSequence(),
-            this.testMap(),
-            this.testCompactMap(),
-            this.testTryCompactMap(),
-            this.testTryMap(),
-            this.testFlatMap(),
-            this.testDelay(),
-            this.testFilter(),
-            this.testTryFilter(),
-            this.testReplaceEmpty(),
-            this.testReplaceError(),
-            this.testRemoveDuplicates(),
-            this.testTryRemoveDuplicates(),
-            this.testTryReduce(),
-            this.testIgnoreOutput(),
-            this.testCollectByCount(),
-            this.testCollectByTime(),
-            this.testCollectByTimeOrCount(),
-            this.testMax(),
-            this.testMin(),
-            this.testTryMin(),
-            this.testTryMax(),
-            this.testCount(),
-            this.testContains(),
-            this.testContainsWhere(),
-            this.testAllSatisfy(),
-            this.testCombineLatest(),
-            this.testZip(),
-            this.testSwitchToLatest(),
-            this.testPrint(),
-            this.testHandleEvents(),
-            this.testCatch(),
-            this.testPrefixUntil(),
-            this.testDropUntil()
+//            this.testSubRecSchedulers(),
+//            this.testRecord(),
+//            this.testAssertNoFailure(),
+//            this.testRetry(),
+//            this.testMeasureInterval(),
+//            this.testThrottle(),
+//            this.testDebounce(),
+//            this.testTimeout(),
+//            this.testPrepend(),
+//            this.testDrop(),
+//            this.testFirst(),
+//            this.testOutput(),
+//            this.testPrefix(),
+//            this.testJust(),
+//            this.testEmpty(),
+//            this.testFail(),
+//            this.testReduce(),
+//            this.testCancel(),
+//            this.testFutureMap(),
+//            this.testScan(),
+//            this.testMergeReduce(),
+//            this.testSequence(),
+//            this.testMap(),
+//            this.testCompactMap(),
+//            this.testTryCompactMap(),
+//            this.testTryMap(),
+//            this.testFlatMap(),
+//            this.testDelay(),
+//            this.testFilter(),
+//            this.testTryFilter(),
+//            this.testReplaceEmpty(),
+//            this.testReplaceError(),
+//            this.testRemoveDuplicates(),
+//            this.testTryRemoveDuplicates(),
+//            this.testTryReduce(),
+//            this.testIgnoreOutput(),
+//            this.testCollectByCount(),
+//            this.testCollectByTime(),
+//            this.testCollectByTimeOrCount(),
+//            this.testMax(),
+//            this.testMin(),
+//            this.testTryMin(),
+//            this.testTryMax(),
+//            this.testCount(),
+//            this.testContains(),
+//            this.testContainsWhere(),
+//            this.testAllSatisfy(),
+//            this.testCombineLatest(),
+//            this.testZip(),
+//            this.testSwitchToLatest(),
+//            this.testPrint(),
+//            this.testHandleEvents(),
+//            this.testCatch(),
+//            this.testPrefixUntil(),
+//            this.testDropUntil()
         };
 
         tests = new IPublisher[] {
-            testSwitchToLatest()
+            testTwoSinksWithModifiers()
+//            testTwoSinks()
+//            testSwitchToLatest()
 //            testCVSSwitchToLatest()
         };
 
@@ -152,7 +154,7 @@ public class Tests extends MIDlet {
             protected void onValue(Object value) {
                 TestCase.Result result = (TestCase.Result) value;
                 String message = result.getMessage();
-                S.println(message);
+                S.debug(message);
                 run++;
                 if (result.passed()) {
                     passed++;
@@ -165,7 +167,7 @@ public class Tests extends MIDlet {
             protected void onCompletion(Completion completion) {
                 String result = new StringBuffer("\nTOTAL: ").append(ftests.length).append(" RUN: ").append(run).append("\nFAILED: ").append(failed).append(" PASSED: ").append(passed).append("\n").append((passed * 1000 * 100) / (ftests.length * 1000)).append("% OK.").toString();
 
-                S.println(result);
+                S.debug(result);
                 form.append(result);
             }
         });
@@ -1482,7 +1484,7 @@ public class Tests extends MIDlet {
 
                     protected void onValue(Object value) {
                         result += (String) value;
-                        S.println("RES: " + result);
+                        S.debug("RES: " + result);
                     }
 
                     protected void onCompletion(Completion completion) {
@@ -1585,6 +1587,95 @@ public class Tests extends MIDlet {
 
                 assertEqual("12A312B4", result);
                 pass();
+            }
+        };
+    }
+
+    private IPublisher testTwoSinks() {
+        return new TestCase("TWO SINKS") {
+
+            private String result = "";
+
+            protected void test() {
+                ISubject sub = new PassthroughSubject();
+                sub.sink(new Sink() {
+                    protected void onValue(Object value) {
+                        S.debug("SINK 1 " + value);
+                        result += value;
+                    }
+                });
+
+                sub.sink(new Sink() {
+                    protected void onValue(Object value) {
+                        S.debug("SINK 2 " + value);
+                        result += value + "" + value;
+
+                        S.debug("RESULT " + result);
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        assertEqual(true, result.length() == 9);
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        pass();
+                    }
+                });
+
+                sub.sendValue("1");
+                sub.sendValue("2");
+                sub.sendValue("3");
+                sub.sendCompletion(new Completion(true));
+            }
+        };
+    }
+
+    private IPublisher testTwoSinksWithModifiers() {
+        return new TestCase("TWO SINKS") {
+
+            private String result = "";
+
+            protected void test() {
+                ISubject sub = new PassthroughSubject();
+                sub.drop(3).sink(new Sink() {
+                    protected void onValue(Object value) {
+                        S.debug("SINK 1 " + value);
+                        result += value;
+                        S.debug("SINK 1 RESULT " + result);
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        S.debug("SINK 1 COMPLETED RESULT " + result);
+                    }
+                });
+
+                //sub.prefix(4).removeDuplicates().sink(new Sink() {
+                //видать из-за префикса комплишен приходил раньше
+                sub.removeDuplicates().sink(new Sink() {
+                    protected void onValue(Object value) {
+                        S.debug("SINK 2 " + value);
+                        result += value;
+
+                        S.debug("SINK 2 RESULT " + result);
+                    }
+
+                    protected void onCompletion(Completion completion) {
+                        S.debug("SINK 2 COMPLETED RESULT " + result);
+                        assertEqual(true, result.length() == 10);
+                        assertEqual(true, completion.isSuccess());
+                        assertEqual(null, completion.getFailure());
+                        pass();
+                    }
+                });
+
+                sub.sendValue("1");
+                sub.sendValue("1");
+                sub.sendValue("1");
+                sub.sendValue("2");
+                sub.sendValue("1");
+                sub.sendValue("2");
+                sub.sendValue("2");
+                sub.sendValue("3");
+                sub.sendCompletion(new Completion(true));
             }
         };
     }
@@ -2066,7 +2157,7 @@ public class Tests extends MIDlet {
                         sub1.to(new Retry(2)).sink(new Sink() {
 
                             protected void onValue(Object value) {
-                                S.println(value);
+                                S.debug(value);
                                 fail();
                             }
 

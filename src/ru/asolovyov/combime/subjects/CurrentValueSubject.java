@@ -24,7 +24,7 @@ public class CurrentValueSubject extends PassthroughSubject {
 
     public void sendValue(Object value) {
         this.value = value;
-        S.debug(this.getId() + " CVS sendValue " + value);
+//        S.println(this.getId() + " CVS sendValue " + value);
         super.sendValue(value);
     }
 

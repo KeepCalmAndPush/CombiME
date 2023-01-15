@@ -88,6 +88,10 @@ public class S {
     }
 
     public static boolean arraysEqual(Object[] arr1, Object[] arr2) {
+        if (arr1 == arr2) {
+            return true;
+        }
+
         if (arr1.length != arr2.length) {
             return false;
         }
@@ -96,29 +100,52 @@ public class S {
         for (int i = 0; i < length; i++) {
             Object element1 = arr1[i];
             Object element2 = arr2[i];
-            if (element1 == null && element2 == null) {
+            if (element1 == element2) {
                 continue;
             }
 
-            if (element1 == null || element2 == null) {
-                return false;
+            if (element1 != null && element1.equals(element2)) {
+                continue;
             }
 
-            if (!arr1[i].equals(arr2[i])) {
-                return false;
-            }
+            return false;
         }
 
         return true;
     }
 
+    public static String toString(Object obj) {
+        if (obj == null) {
+            return "null";
+        }
+
+        if (obj instanceof Object[]) {
+            return S.arrayToString((Object[]) obj);
+        }
+
+        return S.stripPackageName(obj.toString());
+    }
+
     public static String arrayToString(Object[] arr1) {
-        StringBuffer result = new StringBuffer();
+        StringBuffer result = new StringBuffer("[");
 
         int length = arr1.length;
         for (int i = 0; i < length; i++) {
-            result.append(arr1[i]).append(i == length - 1 ? "" : ", ");
+            Object value = arr1[i];
+            String s = S.toString(value);
+            if (value instanceof Integer) {
+                int integer = ((Integer)value).intValue();
+                if (integer == Integer.MAX_VALUE) {
+                    s = "+INF";
+                } else if (integer == Integer.MIN_VALUE) {
+                    s = "-INF";
+                }
+            }
+
+            result.append(s).append(i == length - 1 ? "" : ", ");
         }
+
+        result.append("]");
 
         return result.toString();
     }
@@ -130,6 +157,12 @@ public class S {
             S.print(arr1[i] + " ");
         }
         S.debug("Printing array finished.\n");
+    }
+
+    public static Object[] copyArray(Object[] array) {
+        Object[] copy = new Object[array.length];
+        System.arraycopy(array, 0, copy, 0, array.length);
+        return copy;
     }
 
     public static Integer[] boxed(int[] primitives) {

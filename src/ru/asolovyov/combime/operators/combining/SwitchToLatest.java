@@ -40,12 +40,6 @@ public class SwitchToLatest extends Operator {
             }
         });
 
-//        if (publisher instanceof CurrentValueSubject) {
-//            CurrentValueSubject cvs = ((CurrentValueSubject)publisher);
-//            S.debug(this.getId() + " KEK CVS FLUSH! " + cvs.getValue());
-//            cvs.sendValue(cvs.getValue());
-//        }
-
         return Demand.UNLIMITED;
     }
 }

@@ -7,6 +7,7 @@ import ru.asolovyov.combime.api.IPublisher;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
+import ru.asolovyov.combime.common.S;
 import ru.asolovyov.combime.common.Sink;
 import ru.asolovyov.combime.common.Subscription;
 import ru.asolovyov.combime.operators.Operator;
@@ -94,7 +95,8 @@ public class CombineLatest extends Operator {
         Enumeration elements = subscriptions.elements();
         while (elements.hasMoreElements()) {
             Subscription element = (Subscription) elements.nextElement();
-            element.sendValue(this.latestValues);
+            Object[] values = S.copyArray(latestValues);
+            element.sendValue(values);
         }
     }
     

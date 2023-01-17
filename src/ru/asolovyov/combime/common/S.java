@@ -68,6 +68,12 @@ public class S {
         }
     }
 
+    public static void debugln(Object s) {
+        if (isDebugEnabled) {
+            System.out.println(s);
+        }
+    }
+
     public static String stripPackageName(String string) {
         int index = string.lastIndexOf('.');
         if (index == -1) {

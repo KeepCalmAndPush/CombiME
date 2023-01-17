@@ -27,7 +27,7 @@ public abstract class Operator extends PassthroughSubject implements IOperator {
     }
 
     public Demand receiveInput(Object input) {
-        S.println("Operator " + this + " RRRRReceiveInput " + S.toString(input));
+        S.debugln("Operator " + this + " RRRRReceiveInput " + S.toString(input));
 
         if (!this.isTry) {
             return _receiveInput(input);
@@ -48,7 +48,7 @@ public abstract class Operator extends PassthroughSubject implements IOperator {
 
     protected Demand _receiveInput(Object input) {
         Object newValue = mapValue(input);
-        S.println("Operator " + this + " _receiveInput " + S.toString(input));
+        S.debugln("Operator " + this + " _receiveInput " + S.toString(input));
         sendValue(newValue);
 
         Demand demand = this.requestsLeft.copy();

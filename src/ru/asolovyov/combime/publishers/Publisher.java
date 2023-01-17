@@ -198,6 +198,7 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
     public IPublisher switchToLatest() { return this.to(new SwitchToLatest()); }
     public IPublisher drop(int n) { return this.to(new Drop(n)); }
     public IPublisher prefix(int n) { return this.to(new Prefix(n)); }
+    public IPublisher next() { return this.prefix(1); }
 
     public static IPublisher zip(IPublisher[] publishers) {  return new Zip(publishers); }
     public IPublisher zip(IPublisher publisher) { return new Zip(new IPublisher[]{this, publisher}); }

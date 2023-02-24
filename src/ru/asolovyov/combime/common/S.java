@@ -162,7 +162,8 @@ public class S {
         for (int i = 0; i < length; i++) {
             S.print(arr1[i] + " ");
         }
-        S.debug("Printing array finished.\n");
+        S.println("");
+//        S.debug("Printing array finished.\n");
     }
 
     public static Object[] copyArray(Object[] array) {
@@ -254,5 +255,47 @@ public class S {
         }
 
         return false;
+    }
+
+    public static void sort(int[] arr, int startIndex, int endIndex) {
+        if (arr == null || arr.length == 0) {
+            return;
+        }
+
+        if (startIndex >= endIndex) {
+            return;
+        }
+        
+        int middle = startIndex + (endIndex - startIndex) / 2;
+        int pivot = arr[middle];
+
+        // make left < pivot and right > pivot
+        int i = startIndex, j = endIndex;
+        while (i <= j) {
+            while (arr[i] < pivot) {
+                i++;
+            }
+
+            while (arr[j] > pivot) {
+                j--;
+            }
+
+            if (i <= j) {
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+                i++;
+                j--;
+            }
+        }
+
+        // recursively sort two sub parts
+        if (startIndex < j) {
+            sort(arr, startIndex, j);
+        }
+
+        if (endIndex > i) {
+            sort(arr, i, endIndex);
+        }
     }
 }

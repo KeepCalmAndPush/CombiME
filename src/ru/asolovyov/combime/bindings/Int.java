@@ -23,7 +23,7 @@ public class Int extends CurrentValueSubjectWrapper {
         super(new CurrentValueSubject(value));
     }
 
-    private Int(IPublisher source) {
+    public Int(IPublisher source) {
         super(source);
     }
 

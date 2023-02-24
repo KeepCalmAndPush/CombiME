@@ -25,7 +25,7 @@ public class Bool extends CurrentValueSubjectWrapper {
        super(new CurrentValueSubject(value));
     }
 
-    private Bool(IPublisher source) {
+    public Bool(IPublisher source) {
         super(source);
     }
 

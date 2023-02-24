@@ -6,6 +6,10 @@
 package ru.asolovyov.combime.api;
 
 import java.io.PrintStream;
+import ru.asolovyov.combime.bindings.Arr;
+import ru.asolovyov.combime.bindings.Bool;
+import ru.asolovyov.combime.bindings.Int;
+import ru.asolovyov.combime.bindings.Str;
 import ru.asolovyov.threading.Scheduler;
 
 /**
@@ -65,4 +69,9 @@ public interface IPublisher extends Identifiable {
     public IPublisher throttle(long millis, boolean latest, Scheduler scheduler);
     public IPublisher timeout(long millis);
     public IPublisher timeout(long millis, Scheduler scheduler);
+
+    public Int asInt();
+    public Str asStr();
+    public Bool asBool();
+    public Arr asArr();
 }

@@ -15,6 +15,10 @@ import ru.asolovyov.combime.api.ISubscriber;
 import ru.asolovyov.combime.api.ISubscription;
 import ru.asolovyov.combime.api.ISubscriptionDelegate;
 import ru.asolovyov.combime.api.Identifiable;
+import ru.asolovyov.combime.bindings.Arr;
+import ru.asolovyov.combime.bindings.Bool;
+import ru.asolovyov.combime.bindings.Int;
+import ru.asolovyov.combime.bindings.Str;
 import ru.asolovyov.combime.common.Completion;
 import ru.asolovyov.combime.common.Demand;
 import ru.asolovyov.combime.common.S;
@@ -233,4 +237,20 @@ public abstract class Publisher implements IPublisher, ISubscriptionDelegate, Id
     public IPublisher throttle(long millis, boolean latest, Scheduler scheduler) { return this.to(new Throttle(millis, latest, scheduler)); }
     public IPublisher timeout(long millis) { return this.to(new Timeout(millis)); }
     public IPublisher timeout(long millis, Scheduler scheduler) { return this.to(new Timeout(millis, scheduler)); }
+
+    public Int asInt() {
+        return new Int(this);
+    }
+
+    public Str asStr() {
+        return new Str(this);
+    }
+
+    public Bool asBool() {
+        return new Bool(this);
+    }
+    
+    public Arr asArr() {
+        return new Arr((IPublisher)this);
+    }
 }

@@ -16,9 +16,9 @@ The sources can be found in `ru.asolovyov.combime` and down the respective subpa
 ### API
 The core interfaces are located in `ru.asolovyov.combime.api` package. They match the corresponding Combine interfaces and are self-explaining. The most notable are `IPublisher` (the producer of values), `ISubscriber` (the consumer), `ISubscription` (the way for Subscriber to control the Publisher) and `IOperator` (being a Subscriber and a Publisher at the same time, provides a way to transform values received from Publisher and feed the transformed values down the reactive chain). As `IPublisher` produces values by its inner logic, the `ISubject` is a way for you to provide your values to the chain, making your legacy code reactive. 
 
-`IPublisher` starts producing values when someone calls its `sink(ISubscriber subscriber)`. Operator starts listening to publisher's values when is being fed to publisher's `to(IOperator operator)` method. You may also redirect the output of a publisher to your own subject via `route(ISubject subject)`.
+Simplifying a bit, we may say that `IPublisher` starts producing values when someone calls its `sink(ISubscriber subscriber)`. Operator starts listening to publisher's values when is being fed to publisher's `to(IOperator operator)` method. You may also redirect the output of a publisher to your own subject via `route(ISubject subject)`.
 
-Also, many non-modifying reactive operators like `merge`, `compactMap`, `combineLatest` and so on are implemented as declared as instance methods in `IPublisher`:
+Also, many non-modifying reactive operators like `merge`, `compactMap`, `combineLatest` and so on are declared as instance methods in `IPublisher`:
 
 ```
 public interface IPublisher extends Identifiable {
@@ -106,7 +106,7 @@ CombiME features full set of reactive operators. They are grouped in respective 
 ![Снимок экрана 2023-05-06 в 15 40 49](https://user-images.githubusercontent.com/13520824/236625398-d375d4d6-5615-4544-b8a5-289b47419aef.png)
 
 ### Try it out
-The comprehensive set of samples is provided in `ru.asolovyov.combime.tests`. There is a runnable MIDlet `Tests` which covers all the operators and functions in a unit test manner and generates a test report. Here is an example of one such tests:
+The comprehensive set of samples is provided in `ru.asolovyov.combime.tests`. There is a runnable MIDlet `Tests` which covers all the operators and functions in a unit test manner and generates a test report. Here is an example of one of such tests:
 
 ```
 private IPublisher testCompactMap() {

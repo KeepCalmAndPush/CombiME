@@ -10,8 +10,9 @@ The purpose of the project is to make a proof of concept that declarative layout
 
 ## UI Part (Forms)
 The UI-part is split between two packages: `ru.asolovyov.tummyui.forms` (core infrastructural classes) and `ru.asolovyov.tummyui.forms.views` (UI components themselves).
-###Core
-The entry point for all the TummyUI is the `UIMIDlet` class. Abstract descendant of `javax.microedition.midlet.MIDlet`, it requires to implement the single method: `protected abstract Displayable content();` which must return the first screen of your app. Also `UIMIDlet` notifies its listeners of MIDlet lifecycle events (start, pause, destroy) by virtue of CombiME's `PassthroughSubjects`. 
+![Снимок экрана 2023-05-07 в 12 44 49](https://user-images.githubusercontent.com/13520824/236673109-ce71da0a-a27d-4e61-acf8-1e5c92db64d9.png)
+### Core
+The entry point for all the TummyUI is the `UIMIDlet` class. Abstract descendant of `javax.microedition.midlet.MIDlet`, it requires to implement a single method: `protected abstract Displayable content();` which must return the first screen of your app. Also `UIMIDlet` notifies its listeners of MIDlet lifecycle events (start, pause, destroy) by virtue of CombiME's `PassthroughSubjects`. 
 
 Further screens can be easily presented by using the navigation capabilities of TummyUI: see how `UIForm`s conform to `UINavigatable` or use a `UIDisplayableNavigationWrapper` to provide any `javax.microedition.lcdui.Displayable` as a TummyUI's navigatable object. 
 
@@ -22,7 +23,7 @@ Worth noting the `UIEnvironment` class. It works like an app-wide session where 
 
 Finally, the `UI` class provides a set of static methods of instantiating Views, so you do not need to create them with `new` keyword, making the code looking more Swifty. Here is an example of a simple UI form, with navigation to TextBox and reactive handling of editing events:
 
-```
+```java
 public class FormsTest extends UIMIDlet {
 
     protected Displayable content() {
@@ -37,7 +38,75 @@ public class FormsTest extends UIMIDlet {
 
 }
 ```
+https://user-images.githubusercontent.com/13520824/236672918-4da2dc0c-8729-49f7-ba5b-d9046a056481.mov
 
-[![Hello world](https://user-images.githubusercontent.com/13520824/236672342-381b3838-fa0e-4947-868e-4ee23a2df217.mov)]
+### Views
 
+Views in TummyUI consist of wrappers over standard J2ME components (Form, Image, TextBox etc) and add some new container classes: `UIIf`, `UIForEach` and `UIGroup`.
+
+#### Containers
+`UIForm` is a workhorse of all UI-layout. It is a subclass of `javax.microedition.lcdui.Form` and allows placing of other UI-components, represented by descendants of `UIItem`.
+Each `UIItem` may become hidden/visible and raise a `needsRelayout` flag if some other change occured, that needs to be represented in layout. `UIIForm` listens to this changes reactively and redraws its contents if needed.
+
+The simplest container class is `UIGroup` which holds an array of other `UIItem`s, so they can be added or removed from the interface at once.
+
+`UIIf` lets you show or hide portions of the interface depending on a state of its `Bool` binding. `UIGroup` comes in handy here, allowing you to batch-control the visibility of components.
+
+Finally, `UIForEach` lets you dynamically transform your reactive subject (`Arr`) of models into a list of `UIItem`s. This is possible by providing an instance of `UIGroup.ItemFactory`.
+
+#### Components
+Regular visual components are quite self-explanatory. In `ru.asolovyov.tummyui.forms.views` TummyUI has an assortment of `UIAlert`, `UIChoiceGroup`, `UIDateField`, `UIGauge`, `UIImageItem`, `UIStringItem`, `UITextField`, `UITextBox`. These classes wrap eponymous system components. Here is an extensive example of all available views. Left command button rises an Alert, right command triggers logic in If container. Note that If container manages two ForEach nested containers.
+
+```java
+public class FormsTest extends UIMIDlet {
+
+    private Bool alertTrigger = new Bool(false);
+    private Bool isOdd = new Bool(true);
+    private Arr oddValues = new Arr(new Object[]{"1", "3"});
+    private Arr evenValues = new Arr(new Object[]{"2", "4"});
+
+    protected Displayable content() {
+        return UI.Form("Forms",
+                UI.If(isOdd)
+                    .Then(
+                        UI.ForEach(oddValues, new ItemFactory() {
+                            public UIItem itemFor(Object viewModel) {
+                                return UI.StringItem("Odd:", (String) viewModel);
+                            }
+                    })).Else(
+                        UI.ForEach(evenValues, new ItemFactory() {
+                            public UIItem itemFor(Object viewModel) {
+                                return UI.StringItem("Even:", (String) viewModel);
+                            }
+                    })),
+                UI.DateField("Today is:", DateField.DATE_TIME, new Date()),
+
+                UI.Group(
+                    UI.StringItem(UIEnvironment.put("hello-world-key", "Hello, world!")),
+                    UI.TextField(UIEnvironment.string("hello-world-key")),
+                    UI.Gauge("Gauge", true, 1, 10)),
+                    UI.ChoiceGroup("Are you a", ChoiceGroup.EXCLUSIVE, new ListItem[]{
+                        new ListItem("Cat person", null, true),
+                        new ListItem("Dog person", null, false)
+                }),
+
+                UI.ImageItem(null, "res/1.png", 0, "Cat")
+               )
+               .alert(alertTrigger, UI.Alert("ALERT!", "Hello!", null, AlertType.ALARM))
+               .command(new UICommand("Alert", new UICommand.Handler() {
+                    public void handle() {
+                        alertTrigger.setBool(!alertTrigger.getBoolean());
+                    }
+                }))
+                .command(new UICommand("If", new UICommand.Handler() {
+                    public void handle() {
+                        isOdd.setBool(!isOdd.getBoolean());
+                    }
+                }));
+    }
+}
+```
+
+
+https://user-images.githubusercontent.com/13520824/236685997-0310aa6f-f8b3-4023-9623-8fffcb0d24fd.mov
 

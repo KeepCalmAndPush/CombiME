@@ -27,7 +27,7 @@ public abstract class Operator extends PassthroughSubject implements IOperator {
     }
 
     public Demand receiveInput(Object input) {
-        S.debugln("Operator " + this + " RRRRReceiveInput " + S.toString(input));
+        S.debugln("Operator " + this + " ReceiveInput " + S.toString(input));
 
         if (!this.isTry) {
             return _receiveInput(input);

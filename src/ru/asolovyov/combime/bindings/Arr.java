@@ -7,7 +7,6 @@ package ru.asolovyov.combime.bindings;
 
 import ru.asolovyov.combime.api.IOperator;
 import ru.asolovyov.combime.api.IPublisher;
-import ru.asolovyov.combime.publishers.Publisher;
 import ru.asolovyov.combime.subjects.CurrentValueSubject;
 
 /**

@@ -6,7 +6,6 @@
 package ru.asolovyov.threading;
 
 import java.util.Vector;
-import javax.microedition.lcdui.List;
 import ru.asolovyov.combime.common.S;
 /**
  *

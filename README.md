@@ -116,7 +116,7 @@ private IPublisher testCompactMap() {
 
             protected void test() {
                 (new Sequence(new Object[]{"1", null, "2", null, "3"}))
-                        .to(new CompactMap())
+                        .compactMap()
                         .sink(new Sink() {
                             protected void onValue(Object value) {
                                 result += value;
